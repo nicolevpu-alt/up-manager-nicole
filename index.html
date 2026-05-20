@@ -553,45 +553,34 @@ const sugestoesUP = {
   '800MB': '1GB'
 };
 
+console.log(json);
+
 const importedClientes = json.map((row, index) => {
 
+  const values = Object.values(row);
+
+  const nome =
+    values[0] || `Cliente ${index + 1}`;
+
+  const telefone =
+    values[1] || '';
+
   const planoAtual =
-    row['Plano Atual']
-    || row['PLANO ATUAL']
-    || '400MB';
+    '400MB';
 
   const planoOfertado =
-    sugestoesUP[planoAtual] || '800MB';
-
-  const valorAtual =
-    valoresPlanos[planoAtual] || 0;
-
-  const valorNovo =
-    valoresPlanos[planoOfertado] || 0;
+    '600MB';
 
   const comissao =
-    valorNovo - valorAtual;
+    20;
 
   return {
-
-    nome:
-      row['Cliente']
-      || row['CLIENTE']
-      || `Cliente ${index + 1}`,
-
-    telefone:
-      row['Telefone']
-      || row['TELEFONE']
-      || '',
-
+    nome,
+    telefone,
     planoAtual,
-
     planoOfertado,
-
     comissao,
-
     followup: '',
-
     status: 'Novo'
   };
 });
