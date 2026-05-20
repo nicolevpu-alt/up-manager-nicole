@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UP Manager Nicole</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen">
+
+  <div class="max-w-7xl mx-auto p-6">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+      <div>
+        <h1 class="text-4xl font-bold">🧡 UP Manager</h1>
+        <p class="text-zinc-400 mt-2">Painel pessoal de gestão de UPs da Nicole</p>
+      </div>
+
+      <button onclick="openModal()" class="bg-orange-500 hover:bg-orange-600 transition px-5 py-3 rounded-2xl font-semibold shadow-lg">
+        + Novo Cliente
+      </button>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+
+      <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
+        <p class="text-zinc-400 text-sm">Clientes</p>
+        <h2 id="totalClientes" class="text-3xl font-bold mt-2">0</h2>
+      </div>
+
+      <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
+        <p class="text-zinc-400 text-sm">UPs Fechados</p>
+        <h2 id="upsFechados" class="text-3xl font-bold mt-2">0</h2>
+      </div>
+
+      <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
+        <p class="text-zinc-400 text-sm">Comissão</p>
+        <h2 id="comissaoTotal" class="text-3xl font-bold mt-2">R$0</h2>
+      </div>
+
+      <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
+        <p class="text-zinc-400 text-sm">Pendentes</p>
+        <h2 id="pendentes" class="text-3xl font-bold mt-2">0</h2>
+      </div>
+
+    </div>
+
+    <!-- Busca -->
+    <div class="mb-6">
+      <input
+        type="text"
+        id="search"
+        placeholder="Buscar cliente..."
+        class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 outline-none focus:border-orange-500"
+        onkeyup="renderClientes()"
+      />
+    </div>
+
+    <!-- Tabela -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-zinc-800 text-zinc-300 text-sm uppercase">
+            <tr>
+              <th class="text-left p-4">Cliente</th>
+              <th class="text-left p-4">Plano Atual</th>
+              <th class="text-left p-4">Plano Ofertado</th>
+              <th class="text-left p-4">Comissão</th>
+              <th class="text-left p-4">Status</th>
+              <th class="text-left p-4">Follow-up</th>
+              <th class="text-left p-4">Ações</th>
+            </tr>
+          </thead>
+
+          <tbody id="clientesTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
+    <div class="bg-zinc-900 rounded-3xl p-6 w-full max-w-xl border border-zinc-800">
+
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold">Novo Cliente</h2>
+        <button onclick="closeModal()" class="text-zinc-400 hover:text-white text-xl">✕</button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <input id="cliente" type="text" placeholder="Nome do cliente" class="bg-zinc-800 rounded-2xl px-4 py-3 outline-none" />
+
+        <input id="telefone" type="text" placeholder="Telefone" class="bg-zinc-800 rounded-2xl px-4 py-3 outline-none" />
+
+        <select id="planoAtual" class="bg-zinc-800 rounded-2xl px-4 py-3 outline-none">
+          <option>100MB</option>
+          <option>400MB</option>
+          <option>600MB</option>
+          <option>800MB</option>
+          <option>1GB</option>
+        </select>
+
+        <select id="planoOfertado" class="bg-zinc-800 rounded-2xl px-4 py-3 outline-none">
+          <option>400MB</option>
+          <option>600MB</option>
+          <option>800MB</option>
+          <option>1GB</option>
+        </select>
+
+        <input id="comissao" type="number" placeholder="Comissão" class="bg-zinc-800 rounded-2xl px-4 py-3 outline-none" />
+
+        <input id="followup" type="date" class="bg-zinc-800 rounded-2xl px-4 py-3 outline-none" />
+
+        <select id="status" class="bg-zinc-800 rounded-2xl px-4 py-3 outline-none md:col-span-2">
+          <option>Pensando</option>
+          <option>Não respondeu</option>
+          <option>Não atendeu</option>
+          <option>Fechado</option>
+          <option>Perdido</option>
+        </select>
+
+      </div>
+
+      <button onclick="addCliente()" class="w-full bg-orange-500 hover:bg-orange-600 transition py-3 rounded-2xl mt-6 font-semibold">
+        Salvar Cliente
+      </button>
+
+    </div>
+  </div>
+
+  <script>
+
+    let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+
+    function saveClientes() {
+      localStorage.setItem('clientes', JSON.stringify(clientes));
+    }
+
+    function openModal() {
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+      document.getElementById('modal').classList.remove('flex');
+    }
+
+    function addCliente() {
+      const cliente = {
+        nome: document.getElementById('cliente').value,
+        telefone: document.getElementById('telefone').value,
+        planoAtual: document.getElementById('planoAtual').value,
+        planoOfertado: document.getElementById('planoOfertado').value,
+        comissao: Number(document.getElementById('comissao').value),
+        followup: document.getElementById('followup').value,
+        status: document.getElementById('status').value
+      };
+
+      clientes.push(cliente);
+      saveClientes();
+      renderClientes();
+      closeModal();
+
+      document.querySelectorAll('input').forEach(input => input.value = '');
+    }
+
+    function statusColor(status) {
+      switch(status) {
+        case 'Fechado':
+          return 'bg-green-500/20 text-green-400';
+        case 'Pensando':
+          return 'bg-yellow-500/20 text-yellow-400';
+        case 'Não respondeu':
+          return 'bg-red-500/20 text-red-400';
+        case 'Não atendeu':
+          return 'bg-zinc-500/20 text-zinc-300';
+        default:
+          return 'bg-zinc-500/20 text-zinc-300';
+      }
+    }
+
+    function renderClientes() {
+      const table = document.getElementById('clientesTable');
+      const search = document.getElementById('search').value.toLowerCase();
+
+      table.innerHTML = '';
+
+      let totalComissao = 0;
+      let upsFechados = 0;
+      let pendentes = 0;
+
+      clientes
+        .filter(cliente => cliente.nome.toLowerCase().includes(search))
+        .forEach((cliente, index) => {
+
+          totalComissao += cliente.comissao || 0;
+
+          if(cliente.status === 'Fechado') upsFechados++;
+          if(cliente.status !== 'Fechado') pendentes++;
+
+          table.innerHTML += `
+            <tr class="border-t border-zinc-800 hover:bg-zinc-800/50 transition">
+              <td class="p-4 font-medium">${cliente.nome}</td>
+              <td class="p-4">${cliente.planoAtual}</td>
+              <td class="p-4">${cliente.planoOfertado}</td>
+              <td class="p-4">R$ ${cliente.comissao}</td>
+              <td class="p-4">
+                <span class="px-3 py-1 rounded-full text-sm ${statusColor(cliente.status)}">
+                  ${cliente.status}
+                </span>
+              </td>
+              <td class="p-4">${cliente.followup || '-'}</td>
+              <td class="p-4">
+                <button onclick="deleteCliente(${index})" class="text-red-400 hover:text-red-300">
+                  Excluir
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+
+      document.getElementById('totalClientes').innerText = clientes.length;
+      document.getElementById('upsFechados').innerText = upsFechados;
+      document.getElementById('comissaoTotal').innerText = `R$ ${totalComissao}`;
+      document.getElementById('pendentes').innerText = pendentes;
+    }
+
+    function deleteCliente(index) {
+      clientes.splice(index, 1);
+      saveClientes();
+      renderClientes();
+    }
+
+    renderClientes();
+
+  </script>
+
+</body>
+</html>
