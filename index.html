@@ -92,6 +92,30 @@
 
     <!-- Clientes -->
     <div id="clientesTable" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+
+    <div class="flex items-center justify-center gap-4 mt-8">
+      <button onclick="paginaAnterior()" class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-4 py-2 rounded-2xl">
+        ← Anterior
+      </button>
+
+      <span id="paginaInfo" class="text-zinc-400"></span>
+
+      <button onclick="proximaPagina()" class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-4 py-2 rounded-2xl">
+        Próxima →
+      </button>
+    </div>
+
+    <div class="flex items-center justify-center gap-4 mt-8">
+      <button onclick="paginaAnterior()" class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-4 py-2 rounded-2xl">
+        ← Anterior
+      </button>
+
+      <span id="paginaInfo" class="text-zinc-400"></span>
+
+      <button onclick="proximaPagina()" class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-4 py-2 rounded-2xl">
+        Próxima →
+      </button>
+    </div>
   </div>
 
   <!-- Modal -->
@@ -128,8 +152,9 @@
 
         <input id="followup" type="date" class="bg-zinc-800 rounded-2xl px-4 py-3 outline-none" />
 
-        <select id="status" class="bg-zinc-800 rounded-2xl px-4 py-3 outline-none md:col-span-2">
-          <option>Pensando</option>
+        <select id="status" class="bg-zinclet clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+    let clientesPorPagina = 50;
+    let paginaAtual = 1;<option>Pensando</option>
           <option>Não respondeu</option>
           <option>Não atendeu</option>
           <option>Fechado</option>
@@ -148,6 +173,8 @@
   <script>
 
     let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+    let clientesPorPagina = 50;
+    let paginaAtual = 1;
 
     function saveClientes() {
       localStorage.setItem('clientes', JSON.stringify(clientes));
@@ -187,18 +214,20 @@
         case 'Fechado':
           return 'bg-green-500/20 text-green-400';
         case 'Pensando':
-          return 'bg-yellow-500/20 text-yellow-400';
-        case 'Não respondeu':
-          return 'bg-red-500/20 text-red-400';
-        case 'Não atendeu':
-          return 'bg-zinc-500/20 text-zinc-300';
-        default:
-          return 'bg-zinc-500/20 text-zinc-300';
-      }
-    }
+          return 'bg-yellow-500/2const clientesFiltrados = clientes
+        .filter(cliente => cliente.nome.toLowerCase().includes(search))
+        .filter(cliente => {
+          const filtro = document.getElementById('filterStatus').value;
+          if(filtro === 'Todos') return true;
+          return cliente.status === filtro;
+        });
 
-    function renderClientes() {
-      const table = document.getElementById('clientesTable');
+      const inicio = (paginaAtual - 1) * clientesPorPagina;
+      const fim = inicio + clientesPorPagina;
+
+      const clientesPaginados = clientesFiltrados.slice(inicio, fim);
+
+      clientesPaginados.forEachtable = document.getElementById('clientesTable');
       const search = document.getElementById('search').value.toLowerCase();
 
       table.innerHTML = '';
@@ -207,14 +236,20 @@
       let upsFechados = 0;
       let pendentes = 0;
 
-      clientes
+      const clientesFiltrados = clientes
         .filter(cliente => cliente.nome.toLowerCase().includes(search))
         .filter(cliente => {
           const filtro = document.getElementById('filterStatus').value;
           if(filtro === 'Todos') return true;
           return cliente.status === filtro;
-        })
-        .forEach((cliente, index) => {
+        });
+
+      const inicio = (paginaAtual - 1) * clientesPorPagina;
+      const fim = inicio + clientesPorPagina;
+
+      const clientesPaginados = clientesFiltrados.slice(inicio, fim);
+
+      clientesPaginados.forEach((cliente, index) => {
 
           totalComissao += cliente.comissao || 0;
 
@@ -251,10 +286,10 @@
                 </a>
 
                 <button onclick="editCliente(${index})" class="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-3 py-2 rounded-xl text-sm transition">
-                  Editar
-                </button>
+         document.getElementById('pendentes').innerText = pendentes;
 
-                <button onclick="marcarFechado(${index})" class="bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 px-3 py-2 rounded-xl text-sm transition">
+      const totalPaginas = Math.ceil(clientesFiltrados.length / clientesPorPagina) || 1;
+      document.getElementById('paginaInfo').innerText = `Página ${paginaAtual} de ${totalPaginas}`;<button onclick="marcarFechado(${index})" class="bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 px-3 py-2 rounded-xl text-sm transition">
                   Fechar
                 </button>
 
@@ -270,6 +305,9 @@
       document.getElementById('upsFechados').innerText = upsFechados;
       document.getElementById('comissaoTotal').innerText = `R$ ${totalComissao}`;
       document.getElementById('pendentes').innerText = pendentes;
+
+      const totalPaginas = Math.ceil(clientesFiltrados.length / clientesPorPagina) || 1;
+      document.getElementById('paginaInfo').innerText = `Página ${paginaAtual} de ${totalPaginas}`;
     }
 
     function exportData() {
@@ -300,11 +338,7 @@
             renderClientes();
             alert('Clientes importados com sucesso 😭🧡');
           } catch {
-            alert('Erro ao importar arquivo');
-          }
-        };
-
-        reader.readAsText(file);
+            alert('Erro ao importaclientes = [...clientes, ...importedClientes].slice(0, 5000);eader.readAsText(file);
         return;
       }
 
@@ -312,7 +346,23 @@
 
       reader.onload = function(e) {
         const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
+   function proximaPagina() {
+      const totalPaginas = Math.ceil(clientes.length / clientesPorPagina);
+
+      if(paginaAtual < totalPaginas) {
+        paginaAtual++;
+        renderClientes();
+      }
+    }
+
+    function paginaAnterior() {
+      if(paginaAtual > 1) {
+        paginaAtual--;
+        renderClientes();
+      }
+    }
+
+    function marcarFechado(index) {(data, { type: 'array' });
 
         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
         const json = XLSX.utils.sheet_to_json(firstSheet);
@@ -327,7 +377,7 @@
           status: row['Status'] || 'Pensando'
         }));
 
-        clientes = [...clientes, ...importedClientes];
+        
 
         saveClientes();
         renderClientes();
@@ -338,7 +388,23 @@
       reader.readAsArrayBuffer(file);
     }
 
-    function marcarFechado(index) {
+    function proximaPagina() {
+      const totalPaginas = Math.ceil(clientes.length / clientesPorPagina);
+
+      if(paginaAtual < totalPaginas) {
+        paginaAtual++;
+        renderClientes();
+      }
+    }
+
+    function paginaAnterior() {
+      if(paginaAtual > 1) {
+        paginaAtual--;
+        renderClientes();
+      }
+    }
+
+    function marcarFe
       clientes[index].status = 'Fechado';
       saveClientes();
       renderClientes();
