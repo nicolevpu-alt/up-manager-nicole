@@ -510,40 +510,70 @@
           workbook.Sheets[workbook.SheetNames[0]];
 
         const json =
-          XLSX.utils.sheet_to_json(firstSheet);
+          XLSX.utils.sheet_to_json(firstSheet);    
+const valoresPlanos = {
+  '100MB': 99.90,
+  '200MB': 109.90,
+  '300MB': 129.90,
+  '400MB': 109.90,
+  '500MB': 109.90,
+  '600MB': 129.90,
+  '800MB': 149.90,
+  '1GB': 199.90
+};
 
-        const importedClientes = json.map((row, index) => ({
+const sugestoesUP = {
+  '100MB': '500MB',
+  '200MB': '600MB',
+  '300MB': '800MB',
+  '400MB': '600MB',
+  '500MB': '600MB',
+  '600MB': '800MB',
+  '800MB': '1GB'
+};
 
-          nome:
-            row['Cliente']
-            || row['CLIENTE']
-            || `Cliente ${index + 1}`,
+const importedClientes = json.map((row, index) => {
 
-          telefone:
-            row['Telefone']
-            || row['TELEFONE']
-            || '',
+  const planoAtual =
+    row['Plano Atual']
+    || row['PLANO ATUAL']
+    || '400MB';
 
-          planoAtual:
-            row['Plano Atual']
-            || '400MB',
+  const planoOfertado =
+    sugestoesUP[planoAtual] || '800MB';
 
-          planoOfertado:
-            row['Plano Ofertado']
-            || '800MB',
+  const valorAtual =
+    valoresPlanos[planoAtual] || 0;
 
-          comissao:
-            Number(row['Comissão'] || 25),
+  const valorNovo =
+    valoresPlanos[planoOfertado] || 0;
 
-          followup:
-            row['Follow-up']
-            || '',
+  const comissao =
+    valorNovo - valorAtual;
 
-          status:
-            row['Status']
-            || 'Pensando'
-        }));
+  return {
 
+    nome:
+      row['Cliente']
+      || row['CLIENTE']
+      || `Cliente ${index + 1}`,
+
+    telefone:
+      row['Telefone']
+      || row['TELEFONE']
+      || '',
+
+    planoAtual,
+
+    planoOfertado,
+
+    comissao,
+
+    followup: '',
+
+    status: 'Novo'
+  };
+});
         clientes =
           [...clientes, ...importedClientes];
 
