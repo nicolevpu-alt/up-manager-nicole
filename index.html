@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>UP Manager Nicole</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen">
 
@@ -55,7 +56,7 @@
 
       <label class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-4 py-3 rounded-2xl font-medium cursor-pointer text-center">
         📥 Importar Planilha
-        <input type="file" accept=".json" onchange="importData(event)" class="hidden" />
+        <input type="file" accept=".json,.xlsx,.xls" onchange="importData(event)" class="hidden" />
       </label>
     </div>
 
@@ -286,21 +287,55 @@
       const file = event.target.files[0];
       if (!file) return;
 
+      const extension = file.name.split('.').pop().toLowerCase();
+
+      if(extension === 'json') {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+          try {
+            const imported = JSON.parse(e.target.result);
+            clientes = imported;
+            saveClientes();
+            renderClientes();
+            alert('Clientes importados com sucesso 😭🧡');
+          } catch {
+            alert('Erro ao importar arquivo');
+          }
+        };
+
+        reader.readAsText(file);
+        return;
+      }
+
       const reader = new FileReader();
 
       reader.onload = function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          clientes = imported;
-          saveClientes();
-          renderClientes();
-          alert('Clientes importados com sucesso 😭🧡');
-        } catch {
-          alert('Erro ao importar arquivo');
-        }
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(firstSheet);
+
+        const importedClientes = json.map((row, index) => ({
+          nome: row['Cliente'] || row['CLIENTE'] || `Cliente ${index + 1}`,
+          telefone: row['Telefone'] || row['TELEFONE'] || '',
+          planoAtual: row['Plano Atual'] || row['PLANO ATUAL'] || '400MB',
+          planoOfertado: row['Plano Ofertado'] || row['PLANO OFERTADO'] || '800MB',
+          comissao: Number(row['Comissão'] || row['COMISSÃO'] || 0),
+          followup: row['Follow-up'] || '',
+          status: row['Status'] || 'Pensando'
+        }));
+
+        clientes = [...clientes, ...importedClientes];
+
+        saveClientes();
+        renderClientes();
+
+        alert(`${importedClientes.length} clientes importados 😭🧡`);
       };
 
-      reader.readAsText(file);
+      reader.readAsArrayBuffer(file);
     }
 
     function marcarFechado(index) {
