@@ -47,6 +47,18 @@
 
     </div>
 
+    <!-- Ações -->
+    <div class="flex flex-col md:flex-row gap-4 mb-6">
+      <button onclick="exportData()" class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-4 py-3 rounded-2xl font-medium">
+        📤 Exportar Clientes
+      </button>
+
+      <label class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-4 py-3 rounded-2xl font-medium cursor-pointer text-center">
+        📥 Importar Planilha
+        <input type="file" accept=".json" onchange="importData(event)" class="hidden" />
+      </label>
+    </div>
+
     <!-- Busca -->
     <div class="flex flex-col md:flex-row gap-4 mb-6">
       <input
@@ -77,28 +89,8 @@
       />
     </div>
 
-    <!-- Tabela -->
-    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
-
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-zinc-800 text-zinc-300 text-sm uppercase">
-            <tr>
-              <th class="text-left p-4">Cliente</th>
-              <th class="text-left p-4">Plano Atual</th>
-              <th class="text-left p-4">Plano Ofertado</th>
-              <th class="text-left p-4">Comissão</th>
-              <th class="text-left p-4">Status</th>
-              <th class="text-left p-4">Follow-up</th>
-              <th class="text-left p-4">Ações</th>
-              <th class="text-left p-4">WhatsApp</th>
-            </tr>
-          </thead>
-
-          <tbody id="clientesTable"></tbody>
-        </table>
-      </div>
-    </div>
+    <!-- Clientes -->
+    <div id="clientesTable" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
   </div>
 
   <!-- Modal -->
@@ -229,7 +221,95 @@
           if(cliente.status !== 'Fechado') pendentes++;
 
           table.innerHTML += `
-            <tr class="border-t border-zinc-800 hover:bg-zinc-800/50 transition">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 hover:border-orange-500 transition">
+
+              <div class="flex items-start justify-between gap-3 mb-4">
+                <div>
+                  <h3 class="text-xl font-bold">${cliente.nome}</h3>
+                  <p class="text-zinc-400 text-sm mt-1">📞 ${cliente.telefone || '-'} </p>
+                </div>
+
+                <span class="px-3 py-1 rounded-full text-sm ${statusColor(cliente.status)}">
+                  ${cliente.status}
+                </span>
+              </div>
+
+              <div class="space-y-2 text-sm mb-5">
+                <p>📶 <span class="text-zinc-400">Plano:</span> ${cliente.planoAtual} → ${cliente.planoOfertado}</p>
+                <p>💰 <span class="text-zinc-400">Comissão:</span> R$ ${cliente.comissao}</p>
+                <p>📅 <span class="text-zinc-400">Follow-up:</span> ${cliente.followup || '-'} </p>
+
+                ${cliente.followup && new Date(cliente.followup) < new Date() && cliente.status !== 'Fechado'
+                  ? '<div class="text-red-400 text-xs mt-2">⚠ Follow-up atrasado</div>'
+                  : ''}
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                <a href="https://wa.me/55${cliente.telefone}" target="_blank" class="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-3 py-2 rounded-xl text-sm transition">
+                  WhatsApp
+                </a>
+
+                <button onclick="editCliente(${index})" class="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-3 py-2 rounded-xl text-sm transition">
+                  Editar
+                </button>
+
+                <button onclick="marcarFechado(${index})" class="bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 px-3 py-2 rounded-xl text-sm transition">
+                  Fechar
+                </button>
+
+                <button onclick="deleteCliente(${index})" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-xl text-sm transition">
+                  Excluir
+                </button>
+              </div>
+            </div>
+          `;
+        });
+
+      document.getElementById('totalClientes').innerText = clientes.length;
+      document.getElementById('upsFechados').innerText = upsFechados;
+      document.getElementById('comissaoTotal').innerText = `R$ ${totalComissao}`;
+      document.getElementById('pendentes').innerText = pendentes;
+    }
+
+    function exportData() {
+      const dataStr = JSON.stringify(clientes, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'clientes-up-manager.json';
+      a.click();
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          clientes = imported;
+          saveClientes();
+          renderClientes();
+          alert('Clientes importados com sucesso 😭🧡');
+        } catch {
+          alert('Erro ao importar arquivo');
+        }
+      };
+
+      reader.readAsText(file);
+    }
+
+    function marcarFechado(index) {
+      clientes[index].status = 'Fechado';
+      saveClientes();
+      renderClientes();
+    }
+
+    function deleteCliente(index) {
               <td class="p-4 font-medium">${cliente.nome}</td>
               <td class="p-4">${cliente.planoAtual}</td>
               <td class="p-4">${cliente.planoOfertado}</td>
@@ -301,4 +381,3 @@
 
 </body>
 </html>
-
