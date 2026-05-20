@@ -48,6 +48,25 @@
     </div>
 
     <!-- Busca -->
+    <div class="flex flex-col md:flex-row gap-4 mb-6">
+      <input
+        type="text"
+        id="search"
+        placeholder="Buscar cliente..."
+        class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 outline-none focus:border-orange-500"
+        onkeyup="renderClientes()"
+      />
+
+      <select id="filterStatus" onchange="renderClientes()" class="bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 outline-none focus:border-orange-500">
+        <option value="Todos">Todos Status</option>
+        <option value="Pensando">Pensando</option>
+        <option value="Fechado">Fechado</option>
+        <option value="Não respondeu">Não respondeu</option>
+        <option value="Não atendeu">Não atendeu</option>
+        <option value="Perdido">Perdido</option>
+      </select>
+    </div>
+
     <div class="mb-6">
       <input
         type="text"
@@ -72,6 +91,7 @@
               <th class="text-left p-4">Status</th>
               <th class="text-left p-4">Follow-up</th>
               <th class="text-left p-4">Ações</th>
+              <th class="text-left p-4">WhatsApp</th>
             </tr>
           </thead>
 
@@ -196,6 +216,11 @@
 
       clientes
         .filter(cliente => cliente.nome.toLowerCase().includes(search))
+        .filter(cliente => {
+          const filtro = document.getElementById('filterStatus').value;
+          if(filtro === 'Todos') return true;
+          return cliente.status === filtro;
+        })
         .forEach((cliente, index) => {
 
           totalComissao += cliente.comissao || 0;
@@ -214,11 +239,28 @@
                   ${cliente.status}
                 </span>
               </td>
-              <td class="p-4">${cliente.followup || '-'}</td>
               <td class="p-4">
-                <button onclick="deleteCliente(${index})" class="text-red-400 hover:text-red-300">
-                  Excluir
-                </button>
+                ${cliente.followup || '-'}
+                ${cliente.followup && new Date(cliente.followup) < new Date() && cliente.status !== 'Fechado'
+                  ? '<div class="text-red-400 text-xs mt-1">⚠ Follow-up atrasado</div>'
+                  : ''}
+              </td>
+              <td class="p-4">
+                <div class="flex gap-3">
+                  <button onclick="editCliente(${index})" class="text-blue-400 hover:text-blue-300">
+                    Editar
+                  </button>
+
+                  <button onclick="deleteCliente(${index})" class="text-red-400 hover:text-red-300">
+                    Excluir
+                  </button>
+                </div>
+              </td>
+
+              <td class="p-4">
+                <a href="https://wa.me/55${cliente.telefone}" target="_blank" class="text-green-400 hover:text-green-300">
+                  WhatsApp
+                </a>
               </td>
             </tr>
           `;
@@ -228,6 +270,23 @@
       document.getElementById('upsFechados').innerText = upsFechados;
       document.getElementById('comissaoTotal').innerText = `R$ ${totalComissao}`;
       document.getElementById('pendentes').innerText = pendentes;
+    }
+
+    function editCliente(index) {
+      const cliente = clientes[index];
+
+      document.getElementById('cliente').value = cliente.nome;
+      document.getElementById('telefone').value = cliente.telefone;
+      document.getElementById('planoAtual').value = cliente.planoAtual;
+      document.getElementById('planoOfertado').value = cliente.planoOfertado;
+      document.getElementById('comissao').value = cliente.comissao;
+      document.getElementById('followup').value = cliente.followup;
+      document.getElementById('status').value = cliente.status;
+
+      clientes.splice(index, 1);
+      saveClientes();
+      renderClientes();
+      openModal();
     }
 
     function deleteCliente(index) {
@@ -242,3 +301,4 @@
 
 </body>
 </html>
+
