@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
 
   <title>UP Manager Nicole</title>
 
@@ -17,265 +21,265 @@
 
   <div class="max-w-[1800px] mx-auto p-6">
 
-```
-<!-- HEADER -->
-<div class="flex flex-col lg:flex-row justify-between gap-4 mb-8">
+    <!-- HEADER -->
 
-  <div>
+    <div class="flex flex-col lg:flex-row justify-between gap-4 mb-8">
 
-    <h1 class="text-5xl font-bold">
-      🧡 UP Manager
-    </h1>
+      <div>
 
-    <p class="text-zinc-400 mt-2">
-      CRM pessoal de UPs da Nicole
-    </p>
+        <h1 class="text-5xl font-bold">
+          🧡 UP Manager
+        </h1>
 
-  </div>
+        <p class="text-zinc-400 mt-2">
+          CRM pessoal de UPs da Nicole
+        </p>
 
-  <div class="flex flex-wrap gap-3">
+      </div>
 
-    <button
-      onclick="exportarClientes()"
-      class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl">
+      <div class="flex flex-wrap gap-3">
 
-      📤 Exportar
-    </button>
+        <button
+          onclick="exportarClientes()"
+          class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl">
 
-    <label
-      class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl cursor-pointer">
+          📤 Exportar
+        </button>
 
-      📥 Importar Excel
+        <label
+          class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl cursor-pointer">
+
+          📥 Importar Excel
+
+          <input
+            type="file"
+            accept=".xlsx,.xls"
+            onchange="importarPlanilha(event)"
+            class="hidden"
+          />
+
+        </label>
+
+      </div>
+
+    </div>
+
+    <!-- DASHBOARD -->
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+
+      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+
+        <p class="text-zinc-400 text-sm">
+          Clientes
+        </p>
+
+        <h2
+          id="totalClientes"
+          class="text-4xl font-bold mt-2">
+
+          0
+        </h2>
+
+      </div>
+
+      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+
+        <p class="text-zinc-400 text-sm">
+          Fechados
+        </p>
+
+        <h2
+          id="upsFechados"
+          class="text-4xl font-bold mt-2">
+
+          0
+        </h2>
+
+      </div>
+
+      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+
+        <p class="text-zinc-400 text-sm">
+          Comissão
+        </p>
+
+        <h2
+          id="comissaoTotal"
+          class="text-4xl font-bold mt-2">
+
+          R$ 0
+        </h2>
+
+      </div>
+
+      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+
+        <p class="text-zinc-400 text-sm">
+          Pendentes
+        </p>
+
+        <h2
+          id="pendentes"
+          class="text-4xl font-bold mt-2">
+
+          0
+        </h2>
+
+      </div>
+
+    </div>
+
+    <!-- BUSCA -->
+
+    <div class="mb-8">
 
       <input
-        type="file"
-        accept=".xlsx,.xls"
-        onchange="importarPlanilha(event)"
-        class="hidden"
+        type="text"
+        id="search"
+        placeholder="Buscar cliente..."
+        onkeyup="renderizarClientes()"
+        class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 outline-none focus:border-orange-500"
       />
 
-    </label>
-
-    <button
-      onclick="abrirModal()"
-      class="bg-orange-500 hover:bg-orange-600 transition px-6 py-3 rounded-2xl font-semibold">
-
-      + Novo Cliente
-    </button>
-
-  </div>
-
-</div>
-
-<!-- DASHBOARD -->
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-
-  <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-
-    <p class="text-zinc-400 text-sm">
-      Clientes
-    </p>
-
-    <h2
-      id="totalClientes"
-      class="text-4xl font-bold mt-2">
-
-      0
-    </h2>
-
-  </div>
-
-  <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-
-    <p class="text-zinc-400 text-sm">
-      Fechados
-    </p>
-
-    <h2
-      id="upsFechados"
-      class="text-4xl font-bold mt-2">
-
-      0
-    </h2>
-
-  </div>
-
-  <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-
-    <p class="text-zinc-400 text-sm">
-      Comissão
-    </p>
-
-    <h2
-      id="comissaoTotal"
-      class="text-4xl font-bold mt-2">
-
-      R$ 0
-    </h2>
-
-  </div>
-
-  <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-
-    <p class="text-zinc-400 text-sm">
-      Pendentes
-    </p>
-
-    <h2
-      id="pendentes"
-      class="text-4xl font-bold mt-2">
-
-      0
-    </h2>
-
-  </div>
-
-</div>
-
-<!-- BUSCA -->
-<div class="mb-8">
-
-  <input
-    type="text"
-    id="search"
-    placeholder="Buscar cliente..."
-    onkeyup="renderizarClientes()"
-    class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 outline-none focus:border-orange-500"
-  />
-
-</div>
-
-<!-- KANBAN -->
-<div
-  class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
-
-  <!-- NOVO -->
-  <div class="bg-zinc-900/50 rounded-3xl p-4">
-
-    <div class="flex items-center justify-between mb-4">
-
-      <h2 class="text-xl font-bold text-blue-400">
-        🔵 Novos
-      </h2>
-
-      <span
-        id="countNovo"
-        class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm">
-
-        0
-      </span>
-
     </div>
+
+    <!-- KANBAN -->
 
     <div
-      id="novoContainer"
-      class="space-y-4">
+      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+
+      <!-- NOVO -->
+
+      <div class="bg-zinc-900/50 rounded-3xl p-4">
+
+        <div class="flex items-center justify-between mb-4">
+
+          <h2 class="text-xl font-bold text-blue-400">
+            🔵 Novos
+          </h2>
+
+          <span
+            id="countNovo"
+            class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm">
+
+            0
+          </span>
+
+        </div>
+
+        <div
+          id="novoContainer"
+          class="space-y-4 max-h-[75vh] overflow-y-auto">
+        </div>
+
+      </div>
+
+      <!-- PENSANDO -->
+
+      <div class="bg-zinc-900/50 rounded-3xl p-4">
+
+        <div class="flex items-center justify-between mb-4">
+
+          <h2 class="text-xl font-bold text-yellow-400">
+            🟡 Pensando
+          </h2>
+
+          <span
+            id="countPensando"
+            class="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full text-sm">
+
+            0
+          </span>
+
+        </div>
+
+        <div
+          id="pensandoContainer"
+          class="space-y-4 max-h-[75vh] overflow-y-auto">
+        </div>
+
+      </div>
+
+      <!-- NÃO RESPONDEU -->
+
+      <div class="bg-zinc-900/50 rounded-3xl p-4">
+
+        <div class="flex items-center justify-between mb-4">
+
+          <h2 class="text-xl font-bold text-red-400">
+            🔴 Não respondeu
+          </h2>
+
+          <span
+            id="countNaoRespondeu"
+            class="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm">
+
+            0
+          </span>
+
+        </div>
+
+        <div
+          id="naoRespondeuContainer"
+          class="space-y-4 max-h-[75vh] overflow-y-auto">
+        </div>
+
+      </div>
+
+      <!-- NÃO ATENDEU -->
+
+      <div class="bg-zinc-900/50 rounded-3xl p-4">
+
+        <div class="flex items-center justify-between mb-4">
+
+          <h2 class="text-xl font-bold text-zinc-300">
+            ⚫ Não atendeu
+          </h2>
+
+          <span
+            id="countNaoAtendeu"
+            class="bg-zinc-700 text-zinc-300 px-3 py-1 rounded-full text-sm">
+
+            0
+          </span>
+
+        </div>
+
+        <div
+          id="naoAtendeuContainer"
+          class="space-y-4 max-h-[75vh] overflow-y-auto">
+        </div>
+
+      </div>
+
+      <!-- FECHADO -->
+
+      <div class="bg-zinc-900/50 rounded-3xl p-4">
+
+        <div class="flex items-center justify-between mb-4">
+
+          <h2 class="text-xl font-bold text-green-400">
+            🟢 Fechado
+          </h2>
+
+          <span
+            id="countFechado"
+            class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">
+
+            0
+          </span>
+
+        </div>
+
+        <div
+          id="fechadoContainer"
+          class="space-y-4 max-h-[75vh] overflow-y-auto">
+        </div>
+
+      </div>
+
     </div>
-
-  </div>
-
-  <!-- PENSANDO -->
-  <div class="bg-zinc-900/50 rounded-3xl p-4">
-
-    <div class="flex items-center justify-between mb-4">
-
-      <h2 class="text-xl font-bold text-yellow-400">
-        🟡 Pensando
-      </h2>
-
-      <span
-        id="countPensando"
-        class="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full text-sm">
-
-        0
-      </span>
-
-    </div>
-
-    <div
-      id="pensandoContainer"
-      class="space-y-4">
-    </div>
-
-  </div>
-
-  <!-- NÃO RESPONDEU -->
-  <div class="bg-zinc-900/50 rounded-3xl p-4">
-
-    <div class="flex items-center justify-between mb-4">
-
-      <h2 class="text-xl font-bold text-red-400">
-        🔴 Não respondeu
-      </h2>
-
-      <span
-        id="countNaoRespondeu"
-        class="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm">
-
-        0
-      </span>
-
-    </div>
-
-    <div
-      id="naoRespondeuContainer"
-      class="space-y-4">
-    </div>
-
-  </div>
-
-  <!-- NÃO ATENDEU -->
-  <div class="bg-zinc-900/50 rounded-3xl p-4">
-
-    <div class="flex items-center justify-between mb-4">
-
-      <h2 class="text-xl font-bold text-zinc-300">
-        ⚫ Não atendeu
-      </h2>
-
-      <span
-        id="countNaoAtendeu"
-        class="bg-zinc-700 text-zinc-300 px-3 py-1 rounded-full text-sm">
-
-        0
-      </span>
-
-    </div>
-
-    <div
-      id="naoAtendeuContainer"
-      class="space-y-4">
-    </div>
-
-  </div>
-
-  <!-- FECHADO -->
-  <div class="bg-zinc-900/50 rounded-3xl p-4">
-
-    <div class="flex items-center justify-between mb-4">
-
-      <h2 class="text-xl font-bold text-green-400">
-        🟢 Fechado
-      </h2>
-
-      <span
-        id="countFechado"
-        class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">
-
-        0
-      </span>
-
-    </div>
-
-    <div
-      id="fechadoContainer"
-      class="space-y-4">
-    </div>
-
-  </div>
-
-</div>
-```
 
   </div>
 
@@ -285,6 +289,7 @@ let clientes =
   JSON.parse(localStorage.getItem('clientes')) || [];
 
 const valoresPlanos = {
+
   '100MB': 99.90,
   '200MB': 109.90,
   '300MB': 129.90,
@@ -296,6 +301,7 @@ const valoresPlanos = {
 };
 
 const sugestoesUP = {
+
   '100MB': '500MB',
   '200MB': '600MB',
   '300MB': '800MB',
@@ -349,7 +355,7 @@ function alterarPlano(index, novoPlano) {
     valoresPlanos[novoPlano];
 
   clientes[index].comissao =
-    valorNovo - valorAtual;
+    (valorNovo - valorAtual).toFixed(2);
 
   salvarClientes();
 
@@ -364,7 +370,7 @@ function criarCard(cliente, index) {
 
       <div class="mb-4">
 
-        <h3 class="text-lg font-bold">
+        <h3 class="text-base font-bold">
           ${cliente.nome}
         </h3>
 
@@ -384,21 +390,13 @@ function criarCard(cliente, index) {
           onchange="alterarPlano(${index}, this.value)"
           class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-sm">
 
-          <option value="500MB" ${cliente.planoOfertado === '500MB' ? 'selected' : ''}>
-            500MB
-          </option>
+          <option value="500MB" ${cliente.planoOfertado === '500MB' ? 'selected' : ''}>500MB</option>
 
-          <option value="600MB" ${cliente.planoOfertado === '600MB' ? 'selected' : ''}>
-            600MB
-          </option>
+          <option value="600MB" ${cliente.planoOfertado === '600MB' ? 'selected' : ''}>600MB</option>
 
-          <option value="800MB" ${cliente.planoOfertado === '800MB' ? 'selected' : ''}>
-            800MB
-          </option>
+          <option value="800MB" ${cliente.planoOfertado === '800MB' ? 'selected' : ''}>800MB</option>
 
-          <option value="1GB" ${cliente.planoOfertado === '1GB' ? 'selected' : ''}>
-            1GB
-          </option>
+          <option value="1GB" ${cliente.planoOfertado === '1GB' ? 'selected' : ''}>1GB</option>
 
         </select>
 
@@ -413,51 +411,44 @@ function criarCard(cliente, index) {
 
         <button
           onclick="copiarNumero('${cliente.telefone}')"
-          class="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-3 py-2 rounded-xl text-xs">
+          class="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-2 py-1 rounded-xl text-xs">
 
           Copiar
         </button>
 
         <button
           onclick="alterarStatus(${index}, 'Novo')"
-          class="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-3 py-2 rounded-xl text-xs">
+          class="bg-blue-500/20 text-blue-400 px-2 py-1 rounded-xl text-xs">
 
           Novo
         </button>
 
         <button
           onclick="alterarStatus(${index}, 'Pensando')"
-          class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 px-3 py-2 rounded-xl text-xs">
+          class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-xl text-xs">
 
           Pensando
         </button>
 
         <button
           onclick="alterarStatus(${index}, 'Não respondeu')"
-          class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-xl text-xs">
+          class="bg-red-500/20 text-red-400 px-2 py-1 rounded-xl text-xs">
 
           Não respondeu
         </button>
 
         <button
           onclick="alterarStatus(${index}, 'Não atendeu')"
-          class="bg-zinc-700 hover:bg-zinc-600 text-zinc-300 px-3 py-2 rounded-xl text-xs">
+          class="bg-zinc-700 text-zinc-300 px-2 py-1 rounded-xl text-xs">
 
           Não atendeu
         </button>
 
         <button
           onclick="alterarStatus(${index}, 'Fechado')"
-          class="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-3 py-2 rounded-xl text-xs">
+          class="bg-green-500/20 text-green-400 px-2 py-1 rounded-xl text-xs">
 
           Fechado
-        </button>
-
-        <button
-          onclick="excluirCliente(${index})"
-          class="bg-red-900/20 hover:bg-red-900/30 text-red-300 px-3 py-2 rounded-xl text-xs">
-
-          Excluir
         </button>
 
       </div>
@@ -504,63 +495,65 @@ function renderizarClientes() {
   let countNaoAtendeu = 0;
   let countFechado = 0;
 
-clientes.slice(0, 150).forEach((cliente, index) => {
+  clientes
+    .slice(0, 150)
+    .forEach((cliente, index) => {
 
-    if(
-      !cliente.nome
-        .toLowerCase()
-        .includes(busca)
-    ) return;
+      if(
+        !cliente.nome
+          .toLowerCase()
+          .includes(busca)
+      ) return;
 
-    const card =
-      criarCard(cliente, index);
+      const card =
+        criarCard(cliente, index);
 
-    switch(cliente.status) {
+      switch(cliente.status) {
 
-      case 'Pensando':
+        case 'Pensando':
 
-        containers['Pensando']
-          .innerHTML += card;
+          containers['Pensando']
+            .innerHTML += card;
 
-        countPensando++;
+          countPensando++;
 
-      break;
+        break;
 
-      case 'Não respondeu':
+        case 'Não respondeu':
 
-        containers['Não respondeu']
-          .innerHTML += card;
+          containers['Não respondeu']
+            .innerHTML += card;
 
-        countNaoRespondeu++;
+          countNaoRespondeu++;
 
-      break;
+        break;
 
-      case 'Não atendeu':
+        case 'Não atendeu':
 
-        containers['Não atendeu']
-          .innerHTML += card;
+          containers['Não atendeu']
+            .innerHTML += card;
 
-        countNaoAtendeu++;
+          countNaoAtendeu++;
 
-      break;
+        break;
 
-      case 'Fechado':
+        case 'Fechado':
 
-        containers['Fechado']
-          .innerHTML += card;
+          containers['Fechado']
+            .innerHTML += card;
 
-        countFechado++;
+          countFechado++;
 
-      break;
+        break;
 
-      default:
+        default:
 
-        containers['Novo']
-          .innerHTML += card;
+          containers['Novo']
+            .innerHTML += card;
 
-        countNovo++;
-    }
-  });
+          countNovo++;
+      }
+    });
 
   document.getElementById('countNovo')
     .innerText = countNovo;
@@ -604,7 +597,7 @@ clientes.slice(0, 150).forEach((cliente, index) => {
 
   document.getElementById('comissaoTotal')
     .innerText =
-      `R$ ${comissaoTotal}`;
+      `R$ ${comissaoTotal.toFixed(2)}`;
 }
 
 function exportarClientes() {
@@ -688,7 +681,7 @@ function importarPlanilha(event) {
         valoresPlanos[planoOfertado];
 
       const comissao =
-        valorNovo - valorAtual;
+        (valorNovo - valorAtual).toFixed(2);
 
       novosClientes.push({
 
@@ -718,36 +711,6 @@ function importarPlanilha(event) {
   };
 
   reader.readAsArrayBuffer(file);
-}
-
-function abrirModal() {
-
-  const nome =
-    prompt('Nome do cliente');
-
-  if(!nome) return;
-
-  const telefone =
-    prompt('Telefone do cliente');
-
-  clientes.unshift({
-
-    nome,
-
-    telefone,
-
-    planoAtual: '400MB',
-
-    planoOfertado: '600MB',
-
-    comissao: 20,
-
-    status: 'Novo'
-  });
-
-  salvarClientes();
-
-  renderizarClientes();
 }
 
 renderizarClientes();
