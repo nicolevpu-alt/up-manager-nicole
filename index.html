@@ -1,195 +1,203 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>UP Manager Nicole</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 </head>
 
 <body class="bg-zinc-950 text-white min-h-screen">
 
   <div class="max-w-7xl mx-auto p-6">
 
-    <!-- HEADER -->
-    <div class="flex flex-col md:flex-row justify-between gap-4 mb-8">
+```
+<!-- HEADER -->
+<div class="flex flex-col md:flex-row justify-between gap-4 mb-8">
 
-      <div>
-        <h1 class="text-5xl font-bold">🧡 UP Manager</h1>
+  <div>
+    <h1 class="text-5xl font-bold">🧡 UP Manager</h1>
 
-        <p class="text-zinc-400 mt-2">
-          Painel pessoal de gestão de UPs da Nicole
-        </p>
-      </div>
+    <p class="text-zinc-400 mt-2">
+      Painel pessoal de gestão de UPs da Nicole
+    </p>
+  </div>
 
-      <div class="flex flex-wrap gap-3">
+  <div class="flex flex-wrap gap-3">
 
-        <button
-          onclick="exportarClientes()"
-          class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl">
+    <button
+      onclick="exportarClientes()"
+      class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl">
 
-          📤 Exportar
-        </button>
+      📤 Exportar
+    </button>
 
-        <label
-          class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl cursor-pointer">
+    <label
+      class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl cursor-pointer">
 
-          📥 Importar Excel
-
-          <input
-            type="file"
-            accept=".xlsx,.xls"
-            onchange="importarPlanilha(event)"
-            class="hidden"
-          />
-        </label>
-
-        <button
-          onclick="abrirModal()"
-          class="bg-orange-500 hover:bg-orange-600 transition px-6 py-3 rounded-2xl font-semibold">
-
-          + Novo Cliente
-        </button>
-
-      </div>
-
-    </div>
-
-    <!-- DASHBOARD -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-        <p class="text-zinc-400 text-sm">Clientes</p>
-        <h2 id="totalClientes" class="text-4xl font-bold mt-2">0</h2>
-      </div>
-
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-        <p class="text-zinc-400 text-sm">UPs Fechados</p>
-        <h2 id="upsFechados" class="text-4xl font-bold mt-2">0</h2>
-      </div>
-
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-        <p class="text-zinc-400 text-sm">Comissão Total</p>
-        <h2 id="comissaoTotal" class="text-4xl font-bold mt-2">R$ 0</h2>
-      </div>
-
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-        <p class="text-zinc-400 text-sm">Pendentes</p>
-        <h2 id="pendentes" class="text-4xl font-bold mt-2">0</h2>
-      </div>
-
-    </div>
-
-    <!-- FILTROS -->
-    <div class="flex flex-col md:flex-row gap-4 mb-8">
+      📥 Importar Excel
 
       <input
-        type="text"
-        id="search"
-        placeholder="Buscar cliente..."
-        onkeyup="renderizarClientes()"
-        class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 outline-none focus:border-orange-500"
+        type="file"
+        accept=".xlsx,.xls"
+        onchange="importarPlanilha(event)"
+        class="hidden"
       />
+    </label>
 
-      <select
-        id="filtroStatus"
-        onchange="renderizarClientes()"
-        class="bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 outline-none">
+    <button
+      onclick="abrirModal()"
+      class="bg-orange-500 hover:bg-orange-600 transition px-6 py-3 rounded-2xl font-semibold">
 
-        <option value="Todos">Todos Status</option>
-        <option value="Novo">Novo</option>
-        <option value="Pensando">Pensando</option>
-        <option value="Não respondeu">Não respondeu</option>
-        <option value="Não atendeu">Não atendeu</option>
-        <option value="Fechado">Fechado</option>
+      + Novo Cliente
+    </button>
 
-      </select>
+  </div>
 
-    </div>
+</div>
 
-    <!-- CLIENTES -->
-    <div
-      id="clientesContainer"
-      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-    </div>
+<!-- DASHBOARD -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
 
-    <!-- PAGINAÇÃO -->
-    <div class="flex justify-center items-center gap-4 mt-10">
+  <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+    <p class="text-zinc-400 text-sm">Clientes</p>
+    <h2 id="totalClientes" class="text-4xl font-bold mt-2">0</h2>
+  </div>
 
-      <button
-        onclick="paginaAnterior()"
-        class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl">
+  <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+    <p class="text-zinc-400 text-sm">UPs Fechados</p>
+    <h2 id="upsFechados" class="text-4xl font-bold mt-2">0</h2>
+  </div>
 
-        ← Anterior
-      </button>
+  <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+    <p class="text-zinc-400 text-sm">Comissão Prevista</p>
+    <h2 id="comissaoTotal" class="text-4xl font-bold mt-2">R$ 0</h2>
+  </div>
 
-      <span
-        id="paginaInfo"
-        class="text-zinc-400">
-      </span>
+  <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+    <p class="text-zinc-400 text-sm">Pendentes</p>
+    <h2 id="pendentes" class="text-4xl font-bold mt-2">0</h2>
+  </div>
 
-      <button
-        onclick="proximaPagina()"
-        class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl">
+</div>
 
-        Próxima →
-      </button>
+<!-- FILTROS -->
+<div class="flex flex-col md:flex-row gap-4 mb-8">
 
-    </div>
+  <input
+    type="text"
+    id="search"
+    placeholder="Buscar cliente..."
+    onkeyup="renderizarClientes()"
+    class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 outline-none focus:border-orange-500"
+  />
+
+  <select
+    id="filtroStatus"
+    onchange="renderizarClientes()"
+    class="bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 outline-none">
+
+    <option value="Todos">Todos Status</option>
+    <option value="Novo">Novo</option>
+    <option value="Pensando">Pensando</option>
+    <option value="Não respondeu">Não respondeu</option>
+    <option value="Não atendeu">Não atendeu</option>
+    <option value="Fechado">Fechado</option>
+
+  </select>
+
+</div>
+
+<!-- CLIENTES -->
+<div
+  id="clientesContainer"
+  class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+</div>
+
+<!-- PAGINAÇÃO -->
+<div class="flex justify-center items-center gap-4 mt-10">
+
+  <button
+    onclick="paginaAnterior()"
+    class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl">
+
+    ← Anterior
+  </button>
+
+  <span
+    id="paginaInfo"
+    class="text-zinc-400">
+  </span>
+
+  <button
+    onclick="proximaPagina()"
+    class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl">
+
+    Próxima →
+  </button>
+
+</div>
+```
 
   </div>
 
   <!-- MODAL -->
+
   <div
     id="modal"
     class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
 
-    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 w-full max-w-xl">
+```
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 w-full max-w-xl">
 
-      <div class="flex justify-between items-center mb-6">
+  <div class="flex justify-between items-center mb-6">
 
-        <h2 class="text-2xl font-bold">
-          Novo Cliente
-        </h2>
+    <h2 class="text-2xl font-bold">
+      Novo Cliente
+    </h2>
 
-        <button
-          onclick="fecharModal()"
-          class="text-zinc-400 hover:text-white">
+    <button
+      onclick="fecharModal()"
+      class="text-zinc-400 hover:text-white">
 
-          ✕
-        </button>
+      ✕
+    </button>
 
-      </div>
+  </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-        <input
-          id="cliente"
-          type="text"
-          placeholder="Cliente"
-          class="bg-zinc-800 rounded-2xl px-4 py-3 outline-none"
-        />
+    <input
+      id="cliente"
+      type="text"
+      placeholder="Cliente"
+      class="bg-zinc-800 rounded-2xl px-4 py-3 outline-none"
+    />
 
-        <input
-          id="telefone"
-          type="text"
-          placeholder="Telefone"
-          class="bg-zinc-800 rounded-2xl px-4 py-3 outline-none"
-        />
+    <input
+      id="telefone"
+      type="text"
+      placeholder="Telefone"
+      class="bg-zinc-800 rounded-2xl px-4 py-3 outline-none"
+    />
 
-      </div>
+  </div>
 
-      <button
-        onclick="adicionarCliente()"
-        class="w-full bg-orange-500 hover:bg-orange-600 transition py-3 rounded-2xl mt-6 font-semibold">
+  <button
+    onclick="adicionarCliente()"
+    class="w-full bg-orange-500 hover:bg-orange-600 transition py-3 rounded-2xl mt-6 font-semibold">
 
-        Salvar Cliente
-      </button>
+    Salvar Cliente
+  </button>
 
-    </div>
+</div>
+```
 
   </div>
 
@@ -268,8 +276,7 @@ function adicionarCliente() {
     planoAtual: '400MB',
     planoOfertado: '600MB',
     comissao: 20,
-    status: 'Novo',
-    followup: ''
+    status: 'Novo'
 
   });
 
@@ -663,9 +670,7 @@ function importarPlanilha(event) {
         planoOfertado,
         comissao,
 
-        status: 'Novo',
-
-        followup: ''
+        status: 'Novo'
 
       });
     }
