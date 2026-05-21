@@ -376,54 +376,97 @@
 
             </div>
 
-            <div class="flex flex-wrap gap-2">
+        container.innerHTML += `
 
-              <button
-                onclick="copiarNumero('${cliente.telefone}')"
-                class="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-3 py-2 rounded-xl text-sm">
+  <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 hover:border-orange-500 transition">
 
-                Copiar Número
-              </button>
+    <div class="flex justify-between items-start gap-3 mb-4">
 
-      <div class="flex flex-wrap gap-2">
+      <div>
 
-  <button
-    onclick="copiarNumero('${cliente.telefone}')"
-    class="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-3 py-2 rounded-xl text-sm">
+        <h3 class="text-2xl font-bold">
+          ${cliente.nome}
+        </h3>
 
-    Copiar Número
-  </button>
+        <p class="text-zinc-400 mt-1">
+          📞 ${cliente.telefone || '-'}
+        </p>
 
-  <button
-    onclick="alterarStatus(${index}, 'Pensando')"
-    class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 px-3 py-2 rounded-xl text-sm">
+      </div>
 
-    Pensando
-  </button>
+      <span class="px-3 py-1 rounded-full text-sm ${corStatus(cliente.status)}">
 
-  <button
-    onclick="alterarStatus(${index}, 'Não respondeu')"
-    class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-xl text-sm">
+        ${cliente.status}
 
-    Não respondeu
-  </button>
+      </span>
 
-  <button
-    onclick="alterarStatus(${index}, 'Não atendeu')"
-    class="bg-zinc-500/20 hover:bg-zinc-500/30 text-zinc-300 px-3 py-2 rounded-xl text-sm">
+    </div>
 
-    Não atendeu
-  </button>
+    <div class="space-y-2 mb-5">
 
-  <button
-    onclick="alterarStatus(${index}, 'Fechado')"
-    class="bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 px-3 py-2 rounded-xl text-sm">
+      <p>
+        📶
+        ${cliente.planoAtual}
+        →
+        ${cliente.planoOfertado}
+      </p>
 
-    Fechado
-  </button>
+      <p>
+        💰 Comissão:
+        R$ ${cliente.comissao}
+      </p>
 
-</div>
-        `;
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+
+      <button
+        onclick="copiarNumero('${cliente.telefone}')"
+        class="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-3 py-2 rounded-xl text-sm">
+
+        Copiar Número
+      </button>
+
+      <button
+        onclick="alterarStatus(${index}, 'Pensando')"
+        class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 px-3 py-2 rounded-xl text-sm">
+
+        Pensando
+      </button>
+
+      <button
+        onclick="alterarStatus(${index}, 'Não respondeu')"
+        class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-xl text-sm">
+
+        Não respondeu
+      </button>
+
+      <button
+        onclick="alterarStatus(${index}, 'Não atendeu')"
+        class="bg-zinc-500/20 hover:bg-zinc-500/30 text-zinc-300 px-3 py-2 rounded-xl text-sm">
+
+        Não atendeu
+      </button>
+
+      <button
+        onclick="alterarStatus(${index}, 'Fechado')"
+        class="bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 px-3 py-2 rounded-xl text-sm">
+
+        Fechado
+      </button>
+
+      <button
+        onclick="excluirCliente(${index})"
+        class="bg-red-900/20 hover:bg-red-900/30 text-red-300 px-3 py-2 rounded-xl text-sm">
+
+        Excluir
+      </button>
+
+    </div>
+
+  </div>
+
+`;
 
       const comissaoTotal = clientes.reduce(
         (total, cliente) => total + cliente.comissao,
