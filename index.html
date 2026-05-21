@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
 
   <meta charset="UTF-8" />
@@ -19,7 +20,7 @@
 
 <body class="bg-zinc-950 text-white min-h-screen">
 
-  <div class="max-w-[1800px] mx-auto p-6">
+  <div class="max-w-[1900px] mx-auto p-6">
 
     <!-- HEADER -->
 
@@ -149,13 +150,13 @@
     <div
       class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
 
-      <!-- NOVO -->
+      <!-- NOVOS -->
 
-      <div class="bg-zinc-900/50 rounded-3xl p-4">
+      <div class="bg-zinc-900/40 rounded-3xl p-4">
 
         <div class="flex items-center justify-between mb-4">
 
-          <h2 class="text-xl font-bold text-blue-400">
+          <h2 class="text-blue-400 font-bold text-xl">
             🔵 Novos
           </h2>
 
@@ -170,18 +171,18 @@
 
         <div
           id="novoContainer"
-          class="space-y-4 max-h-[75vh] overflow-y-auto">
+          class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
         </div>
 
       </div>
 
       <!-- PENSANDO -->
 
-      <div class="bg-zinc-900/50 rounded-3xl p-4">
+      <div class="bg-zinc-900/40 rounded-3xl p-4">
 
         <div class="flex items-center justify-between mb-4">
 
-          <h2 class="text-xl font-bold text-yellow-400">
+          <h2 class="text-yellow-400 font-bold text-xl">
             🟡 Pensando
           </h2>
 
@@ -196,18 +197,18 @@
 
         <div
           id="pensandoContainer"
-          class="space-y-4 max-h-[75vh] overflow-y-auto">
+          class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
         </div>
 
       </div>
 
       <!-- NÃO RESPONDEU -->
 
-      <div class="bg-zinc-900/50 rounded-3xl p-4">
+      <div class="bg-zinc-900/40 rounded-3xl p-4">
 
         <div class="flex items-center justify-between mb-4">
 
-          <h2 class="text-xl font-bold text-red-400">
+          <h2 class="text-red-400 font-bold text-xl">
             🔴 Não respondeu
           </h2>
 
@@ -222,18 +223,18 @@
 
         <div
           id="naoRespondeuContainer"
-          class="space-y-4 max-h-[75vh] overflow-y-auto">
+          class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
         </div>
 
       </div>
 
       <!-- NÃO ATENDEU -->
 
-      <div class="bg-zinc-900/50 rounded-3xl p-4">
+      <div class="bg-zinc-900/40 rounded-3xl p-4">
 
         <div class="flex items-center justify-between mb-4">
 
-          <h2 class="text-xl font-bold text-zinc-300">
+          <h2 class="text-zinc-300 font-bold text-xl">
             ⚫ Não atendeu
           </h2>
 
@@ -248,18 +249,18 @@
 
         <div
           id="naoAtendeuContainer"
-          class="space-y-4 max-h-[75vh] overflow-y-auto">
+          class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
         </div>
 
       </div>
 
       <!-- FECHADO -->
 
-      <div class="bg-zinc-900/50 rounded-3xl p-4">
+      <div class="bg-zinc-900/40 rounded-3xl p-4">
 
         <div class="flex items-center justify-between mb-4">
 
-          <h2 class="text-xl font-bold text-green-400">
+          <h2 class="text-green-400 font-bold text-xl">
             🟢 Fechado
           </h2>
 
@@ -274,7 +275,7 @@
 
         <div
           id="fechadoContainer"
-          class="space-y-4 max-h-[75vh] overflow-y-auto">
+          class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
         </div>
 
       </div>
@@ -335,15 +336,6 @@ function alterarStatus(index, status) {
   renderizarClientes();
 }
 
-function excluirCliente(index) {
-
-  clientes.splice(index, 1);
-
-  salvarClientes();
-
-  renderizarClientes();
-}
-
 function alterarPlano(index, novoPlano) {
 
   clientes[index].planoOfertado = novoPlano;
@@ -370,11 +362,11 @@ function criarCard(cliente, index) {
 
       <div class="mb-4">
 
-        <h3 class="text-base font-bold">
+        <h3 class="text-base font-bold break-words">
           ${cliente.nome}
         </h3>
 
-        <p class="text-zinc-400 text-sm mt-1">
+        <p class="text-zinc-400 text-sm mt-1 break-all">
           📞 ${cliente.telefone || '-'}
         </p>
 
@@ -390,19 +382,29 @@ function criarCard(cliente, index) {
           onchange="alterarPlano(${index}, this.value)"
           class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-sm">
 
-          <option value="500MB" ${cliente.planoOfertado === '500MB' ? 'selected' : ''}>500MB</option>
+          <option value="500MB" ${cliente.planoOfertado === '500MB' ? 'selected' : ''}>
+            500MB
+          </option>
 
-          <option value="600MB" ${cliente.planoOfertado === '600MB' ? 'selected' : ''}>600MB</option>
+          <option value="600MB" ${cliente.planoOfertado === '600MB' ? 'selected' : ''}>
+            600MB
+          </option>
 
-          <option value="800MB" ${cliente.planoOfertado === '800MB' ? 'selected' : ''}>800MB</option>
+          <option value="800MB" ${cliente.planoOfertado === '800MB' ? 'selected' : ''}>
+            800MB
+          </option>
 
-          <option value="1GB" ${cliente.planoOfertado === '1GB' ? 'selected' : ''}>1GB</option>
+          <option value="1GB" ${cliente.planoOfertado === '1GB' ? 'selected' : ''}>
+            1GB
+          </option>
 
         </select>
 
         <p class="text-sm">
           💰 Comissão:
-          <strong>R$ ${cliente.comissao}</strong>
+          <strong>
+            R$ ${cliente.comissao}
+          </strong>
         </p>
 
       </div>
@@ -495,65 +497,64 @@ function renderizarClientes() {
   let countNaoAtendeu = 0;
   let countFechado = 0;
 
-  clientes
-    .slice(0, 150)
-    .forEach((cliente, index) => {
+  const clientesFiltrados = clientes.filter(cliente => {
 
-      if(
-        !cliente.nome
-          .toLowerCase()
-          .includes(busca)
-      ) return;
+    return cliente.nome
+      .toLowerCase()
+      .includes(busca);
+  });
 
-      const card =
-        criarCard(cliente, index);
+  clientesFiltrados.forEach((cliente, index) => {
 
-      switch(cliente.status) {
+    const card =
+      criarCard(cliente, index);
 
-        case 'Pensando':
+    switch(cliente.status) {
 
-          containers['Pensando']
-            .innerHTML += card;
+      case 'Pensando':
 
-          countPensando++;
+        containers['Pensando']
+          .innerHTML += card;
 
-        break;
+        countPensando++;
 
-        case 'Não respondeu':
+      break;
 
-          containers['Não respondeu']
-            .innerHTML += card;
+      case 'Não respondeu':
 
-          countNaoRespondeu++;
+        containers['Não respondeu']
+          .innerHTML += card;
 
-        break;
+        countNaoRespondeu++;
 
-        case 'Não atendeu':
+      break;
 
-          containers['Não atendeu']
-            .innerHTML += card;
+      case 'Não atendeu':
 
-          countNaoAtendeu++;
+        containers['Não atendeu']
+          .innerHTML += card;
 
-        break;
+        countNaoAtendeu++;
 
-        case 'Fechado':
+      break;
 
-          containers['Fechado']
-            .innerHTML += card;
+      case 'Fechado':
 
-          countFechado++;
+        containers['Fechado']
+          .innerHTML += card;
 
-        break;
+        countFechado++;
 
-        default:
+      break;
 
-          containers['Novo']
-            .innerHTML += card;
+      default:
 
-          countNovo++;
-      }
-    });
+        containers['Novo']
+          .innerHTML += card;
+
+        countNovo++;
+    }
+  });
 
   document.getElementById('countNovo')
     .innerText = countNovo;
