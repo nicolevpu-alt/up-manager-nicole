@@ -385,25 +385,44 @@
                 Copiar Número
               </button>
 
-              <button
-                onclick="marcarFechado(${index})"
-                class="bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 px-3 py-2 rounded-xl text-sm">
+           <div class="flex flex-wrap gap-2">
 
-                Fechar
-              </button>
+  <button
+    onclick="copiarNumero('${cliente.telefone}')"
+    class="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-3 py-2 rounded-xl text-sm">
 
-              <button
-                onclick="excluirCliente(${index})"
-                class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-xl text-sm">
+    Copiar Número
+  </button>
 
-                Excluir
-              </button>
+  <button
+    onclick="alterarStatus(${index}, 'Pensando')"
+    class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 px-3 py-2 rounded-xl text-sm">
 
-            </div>
+    Pensando
+  </button>
 
-          </div>
-        `;
-      });
+  <button
+    onclick="alterarStatus(${index}, 'Não respondeu')"
+    class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-xl text-sm">
+
+    Não respondeu
+  </button>
+
+  <button
+    onclick="alterarStatus(${index}, 'Não atendeu')"
+    class="bg-zinc-500/20 hover:bg-zinc-500/30 text-zinc-300 px-3 py-2 rounded-xl text-sm">
+
+    Não atendeu
+  </button>
+
+  <button
+    onclick="alterarStatus(${index}, 'Fechado')"
+    class="bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 px-3 py-2 rounded-xl text-sm">
+
+    Fechado
+  </button>
+
+</div>
 
       const comissaoTotal = clientes.reduce(
         (total, cliente) => total + cliente.comissao,
@@ -438,13 +457,13 @@
       renderizarClientes();
     }
 
-    function marcarFechado(index) {
+    function alterarStatus(index, status) {
 
-      clientes[index].status = 'Fechado';
+  clientes[index].status = status;
 
-      salvarClientes();
-      renderizarClientes();
-    }
+  salvarClientes();
+  renderizarClientes();
+}
 
     function paginaAnterior() {
 
