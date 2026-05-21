@@ -504,7 +504,7 @@ function renderizarClientes() {
   let countNaoAtendeu = 0;
   let countFechado = 0;
 
-  clientes.forEach((cliente, index) => {
+clientes.slice(0, 150).forEach((cliente, index) => {
 
     if(
       !cliente.nome
