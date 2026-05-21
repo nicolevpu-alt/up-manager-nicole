@@ -150,166 +150,193 @@
     <div
       class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
 
-      <!-- NOVOS -->
-
-      <div class="bg-zinc-900/40 rounded-3xl p-4">
-
-        <div class="flex items-center justify-between mb-4">
-
-          <h2 class="text-blue-400 font-bold text-xl">
-            🔵 Novos
-          </h2>
-
-          <span
-            id="countNovo"
-            class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm">
-
-            0
-          </span>
-
+      <div class="kanban-coluna">
+        <div class="titulo-kanban text-blue-400">
+          🔵 Novos
+          <span id="countNovo">0</span>
         </div>
 
-        <div
-          id="novoContainer"
-          class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
-        </div>
+        <div id="novoContainer"></div>
 
+        <button
+          onclick="carregarMais('Novo')"
+          class="botao-carregar">
+
+          Carregar mais
+        </button>
       </div>
 
-      <!-- PENSANDO -->
-
-      <div class="bg-zinc-900/40 rounded-3xl p-4">
-
-        <div class="flex items-center justify-between mb-4">
-
-          <h2 class="text-yellow-400 font-bold text-xl">
-            🟡 Pensando
-          </h2>
-
-          <span
-            id="countPensando"
-            class="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full text-sm">
-
-            0
-          </span>
-
+      <div class="kanban-coluna">
+        <div class="titulo-kanban text-yellow-400">
+          🟡 Pensando
+          <span id="countPensando">0</span>
         </div>
 
-        <div
-          id="pensandoContainer"
-          class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
-        </div>
+        <div id="pensandoContainer"></div>
 
+        <button
+          onclick="carregarMais('Pensando')"
+          class="botao-carregar">
+
+          Carregar mais
+        </button>
       </div>
 
-      <!-- NÃO RESPONDEU -->
-
-      <div class="bg-zinc-900/40 rounded-3xl p-4">
-
-        <div class="flex items-center justify-between mb-4">
-
-          <h2 class="text-red-400 font-bold text-xl">
-            🔴 Não respondeu
-          </h2>
-
-          <span
-            id="countNaoRespondeu"
-            class="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm">
-
-            0
-          </span>
-
+      <div class="kanban-coluna">
+        <div class="titulo-kanban text-red-400">
+          🔴 Não respondeu
+          <span id="countNaoRespondeu">0</span>
         </div>
 
-        <div
-          id="naoRespondeuContainer"
-          class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
-        </div>
+        <div id="naoRespondeuContainer"></div>
 
+        <button
+          onclick="carregarMais('Não respondeu')"
+          class="botao-carregar">
+
+          Carregar mais
+        </button>
       </div>
 
-      <!-- NÃO ATENDEU -->
-
-      <div class="bg-zinc-900/40 rounded-3xl p-4">
-
-        <div class="flex items-center justify-between mb-4">
-
-          <h2 class="text-zinc-300 font-bold text-xl">
-            ⚫ Não atendeu
-          </h2>
-
-          <span
-            id="countNaoAtendeu"
-            class="bg-zinc-700 text-zinc-300 px-3 py-1 rounded-full text-sm">
-
-            0
-          </span>
-
+      <div class="kanban-coluna">
+        <div class="titulo-kanban text-zinc-300">
+          ⚫ Não atendeu
+          <span id="countNaoAtendeu">0</span>
         </div>
 
-        <div
-          id="naoAtendeuContainer"
-          class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
-        </div>
+        <div id="naoAtendeuContainer"></div>
 
+        <button
+          onclick="carregarMais('Não atendeu')"
+          class="botao-carregar">
+
+          Carregar mais
+        </button>
       </div>
 
-      <!-- FECHADO -->
-
-      <div class="bg-zinc-900/40 rounded-3xl p-4">
-
-        <div class="flex items-center justify-between mb-4">
-
-          <h2 class="text-green-400 font-bold text-xl">
-            🟢 Fechado
-          </h2>
-
-          <span
-            id="countFechado"
-            class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">
-
-            0
-          </span>
-
+      <div class="kanban-coluna">
+        <div class="titulo-kanban text-green-400">
+          🟢 Fechado
+          <span id="countFechado">0</span>
         </div>
 
-        <div
-          id="fechadoContainer"
-          class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
-        </div>
+        <div id="fechadoContainer"></div>
 
+        <button
+          onclick="carregarMais('Fechado')"
+          class="botao-carregar">
+
+          Carregar mais
+        </button>
       </div>
 
     </div>
 
   </div>
 
+<style>
+
+.kanban-coluna {
+
+  background: rgba(24,24,27,.6);
+
+  border-radius: 24px;
+
+  padding: 16px;
+
+  min-height: 400px;
+}
+
+.titulo-kanban {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 16px;
+
+  font-size: 20px;
+
+  font-weight: bold;
+}
+
+.titulo-kanban span {
+
+  background: rgba(255,255,255,.1);
+
+  padding: 4px 10px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+}
+
+.botao-carregar {
+
+  width: 100%;
+
+  margin-top: 12px;
+
+  background: rgb(39 39 42);
+
+  padding: 10px;
+
+  border-radius: 14px;
+
+  font-size: 14px;
+}
+
+.card {
+
+  background: rgb(24 24 27);
+
+  border: 1px solid rgb(39 39 42);
+
+  border-radius: 20px;
+
+  padding: 14px;
+
+  margin-bottom: 12px;
+}
+
+.botao {
+
+  padding: 6px 10px;
+
+  border-radius: 12px;
+
+  font-size: 12px;
+
+  margin-top: 6px;
+}
+
+</style>
+
 <script>
 
 let clientes =
   JSON.parse(localStorage.getItem('clientes')) || [];
 
+const LIMITE = 30;
+
+const paginas = {
+
+  'Novo': 1,
+  'Pensando': 1,
+  'Não respondeu': 1,
+  'Não atendeu': 1,
+  'Fechado': 1
+};
+
 const valoresPlanos = {
 
-  '100MB': 99.90,
-  '200MB': 109.90,
-  '300MB': 129.90,
   '400MB': 109.90,
   '500MB': 109.90,
   '600MB': 129.90,
   '800MB': 149.90,
   '1GB': 199.90
-};
-
-const sugestoesUP = {
-
-  '100MB': '500MB',
-  '200MB': '600MB',
-  '300MB': '800MB',
-  '400MB': '600MB',
-  '500MB': '600MB',
-  '600MB': '800MB',
-  '800MB': '1GB'
 };
 
 function salvarClientes() {
@@ -320,11 +347,11 @@ function salvarClientes() {
   );
 }
 
-function copiarNumero(numero) {
+function carregarMais(status) {
 
-  navigator.clipboard.writeText(numero);
+  paginas[status]++;
 
-  alert('Número copiado 😭🧡');
+  renderizarClientes();
 }
 
 function alterarStatus(index, status) {
@@ -336,51 +363,56 @@ function alterarStatus(index, status) {
   renderizarClientes();
 }
 
-function alterarPlano(index, novoPlano) {
+function alterarPlano(index, plano) {
 
-  clientes[index].planoOfertado = novoPlano;
+  clientes[index].planoOfertado = plano;
 
-  const valorAtual =
-    valoresPlanos[clientes[index].planoAtual];
+  const atual =
+    valoresPlanos[
+      clientes[index].planoAtual
+    ];
 
-  const valorNovo =
-    valoresPlanos[novoPlano];
+  const novo =
+    valoresPlanos[plano];
 
   clientes[index].comissao =
-    (valorNovo - valorAtual).toFixed(2);
+    (novo - atual).toFixed(2);
 
   salvarClientes();
 
   renderizarClientes();
 }
 
+function copiarNumero(numero) {
+
+  navigator.clipboard.writeText(numero);
+
+  alert('Número copiado 😭🧡');
+}
+
 function criarCard(cliente, index) {
 
   return `
 
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
+    <div class="card">
 
-      <div class="mb-4">
+      <h3 class="font-bold text-sm">
+        ${cliente.nome}
+      </h3>
 
-        <h3 class="text-base font-bold break-words">
-          ${cliente.nome}
-        </h3>
+      <p class="text-zinc-400 text-xs mt-1">
+        📞 ${cliente.telefone || '-'}
+      </p>
 
-        <p class="text-zinc-400 text-sm mt-1 break-all">
-          📞 ${cliente.telefone || '-'}
-        </p>
+      <div class="mt-3 space-y-2">
 
-      </div>
-
-      <div class="space-y-3 mb-4">
-
-        <p class="text-sm">
+        <p class="text-xs">
           📶 ${cliente.planoAtual}
         </p>
 
         <select
           onchange="alterarPlano(${index}, this.value)"
-          class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-sm">
+          class="w-full bg-zinc-800 rounded-xl px-3 py-2 text-xs">
 
           <option value="500MB" ${cliente.planoOfertado === '500MB' ? 'selected' : ''}>
             500MB
@@ -400,55 +432,45 @@ function criarCard(cliente, index) {
 
         </select>
 
-        <p class="text-sm">
-          💰 Comissão:
-          <strong>
-            R$ ${cliente.comissao}
-          </strong>
+        <p class="text-xs">
+          💰 R$ ${cliente.comissao}
         </p>
 
       </div>
 
-      <div class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap gap-2 mt-3">
 
         <button
           onclick="copiarNumero('${cliente.telefone}')"
-          class="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-2 py-1 rounded-xl text-xs">
+          class="botao bg-green-500/20 text-green-400">
 
           Copiar
         </button>
 
         <button
-          onclick="alterarStatus(${index}, 'Novo')"
-          class="bg-blue-500/20 text-blue-400 px-2 py-1 rounded-xl text-xs">
-
-          Novo
-        </button>
-
-        <button
           onclick="alterarStatus(${index}, 'Pensando')"
-          class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-xl text-xs">
+          class="botao bg-yellow-500/20 text-yellow-400">
 
           Pensando
         </button>
 
         <button
           onclick="alterarStatus(${index}, 'Não respondeu')"
-          class="bg-red-500/20 text-red-400 px-2 py-1 rounded-xl text-xs">
+          class="botao bg-red-500/20 text-red-400">
 
           Não respondeu
         </button>
 
         <button
           onclick="alterarStatus(${index}, 'Não atendeu')"
-          class="bg-zinc-700 text-zinc-300 px-2 py-1 rounded-xl text-xs">
+          class="botao bg-zinc-700 text-zinc-300">
 
           Não atendeu
         </button>
 
         <button
           onclick="alterarStatus(${index}, 'Fechado')"
-          class="bg-green-500/20 text-green-400 px-2 py-1 rounded-xl text-xs">
+          class="botao bg-green-500/20 text-green-400">
 
           Fechado
         </button>
@@ -466,6 +488,15 @@ function renderizarClientes() {
       .getElementById('search')
       .value
       .toLowerCase();
+
+  const statuses = [
+
+    'Novo',
+    'Pensando',
+    'Não respondeu',
+    'Não atendeu',
+    'Fechado'
+  ];
 
   const containers = {
 
@@ -486,119 +517,69 @@ function renderizarClientes() {
   };
 
   Object.values(containers)
-    .forEach(container => {
+    .forEach(c => c.innerHTML = '');
 
-      container.innerHTML = '';
+  statuses.forEach(status => {
+
+    const filtrados = clientes.filter(cliente => {
+
+      return (
+        (cliente.status || 'Novo') === status
+        &&
+        cliente.nome
+          .toLowerCase()
+          .includes(busca)
+      );
     });
 
-  let countNovo = 0;
-  let countPensando = 0;
-  let countNaoRespondeu = 0;
-  let countNaoAtendeu = 0;
-  let countFechado = 0;
+    document.getElementById(
 
-  const clientesFiltrados = clientes.filter(cliente => {
+      `count${status
+        .replaceAll(' ', '')
+        .replace('Não', 'Nao')}`
 
-    return cliente.nome
-      .toLowerCase()
-      .includes(busca);
+    ).innerText = filtrados.length;
+
+    filtrados
+
+      .slice(
+        0,
+        paginas[status] * LIMITE
+      )
+
+      .forEach((cliente, index) => {
+
+        containers[status]
+          .innerHTML += criarCard(cliente, index);
+      });
   });
-
-  clientesFiltrados.forEach((cliente, index) => {
-
-    const card =
-      criarCard(cliente, index);
-
-    switch(cliente.status) {
-
-      case 'Pensando':
-
-        containers['Pensando']
-          .innerHTML += card;
-
-        countPensando++;
-
-      break;
-
-      case 'Não respondeu':
-
-        containers['Não respondeu']
-          .innerHTML += card;
-
-        countNaoRespondeu++;
-
-      break;
-
-      case 'Não atendeu':
-
-        containers['Não atendeu']
-          .innerHTML += card;
-
-        countNaoAtendeu++;
-
-      break;
-
-      case 'Fechado':
-
-        containers['Fechado']
-          .innerHTML += card;
-
-        countFechado++;
-
-      break;
-
-      default:
-
-        containers['Novo']
-          .innerHTML += card;
-
-        countNovo++;
-    }
-  });
-
-  document.getElementById('countNovo')
-    .innerText = countNovo;
-
-  document.getElementById('countPensando')
-    .innerText = countPensando;
-
-  document.getElementById('countNaoRespondeu')
-    .innerText = countNaoRespondeu;
-
-  document.getElementById('countNaoAtendeu')
-    .innerText = countNaoAtendeu;
-
-  document.getElementById('countFechado')
-    .innerText = countFechado;
 
   document.getElementById('totalClientes')
     .innerText = clientes.length;
 
+  const fechados =
+    clientes.filter(cliente =>
+      cliente.status === 'Fechado'
+    );
+
   document.getElementById('upsFechados')
-    .innerText = countFechado;
+    .innerText = fechados.length;
 
   document.getElementById('pendentes')
     .innerText =
-      clientes.filter(cliente =>
-        cliente.status !== 'Fechado'
-      ).length;
+      clientes.length - fechados.length;
 
-  const comissaoTotal =
-    clientes
+  const comissao = fechados.reduce(
 
-      .filter(cliente =>
-        cliente.status === 'Fechado'
-      )
+    (acc, cliente) =>
+      acc + Number(cliente.comissao || 0),
 
-      .reduce(
-        (total, cliente) =>
-          total + Number(cliente.comissao || 0),
-        0
-      );
+    0
+  );
 
   document.getElementById('comissaoTotal')
     .innerText =
-      `R$ ${comissaoTotal.toFixed(2)}`;
+      `R$ ${comissao.toFixed(2)}`;
 }
 
 function exportarClientes() {
@@ -663,38 +644,19 @@ function importarPlanilha(event) {
       if(!row || row.length === 0)
         continue;
 
-      const nome =
-        row[0] || `Cliente ${i}`;
-
-      const telefone =
-        row[1] || '';
-
-      const planoAtual =
-        '400MB';
-
-      const planoOfertado =
-        sugestoesUP[planoAtual];
-
-      const valorAtual =
-        valoresPlanos[planoAtual];
-
-      const valorNovo =
-        valoresPlanos[planoOfertado];
-
-      const comissao =
-        (valorNovo - valorAtual).toFixed(2);
-
       novosClientes.push({
 
-        nome: String(nome),
+        nome:
+          String(row[0] || `Cliente ${i}`),
 
-        telefone: String(telefone),
+        telefone:
+          String(row[1] || ''),
 
-        planoAtual,
+        planoAtual: '400MB',
 
-        planoOfertado,
+        planoOfertado: '600MB',
 
-        comissao,
+        comissao: '20.00',
 
         status: 'Novo'
       });
@@ -703,6 +665,15 @@ function importarPlanilha(event) {
     clientes = novosClientes;
 
     salvarClientes();
+
+    paginas = {
+
+      'Novo': 1,
+      'Pensando': 1,
+      'Não respondeu': 1,
+      'Não atendeu': 1,
+      'Fechado': 1
+    };
 
     renderizarClientes();
 
