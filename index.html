@@ -329,137 +329,251 @@
       }
     }
 
-    function renderizarClientes() {
+  <!-- SUBSTITUA APENAS A FUNÇÃO renderizarClientes() POR ESTA -->
 
-      const container =
-        document.getElementById('clientesContainer');
+function renderizarClientes() {
 
-      const busca =
-        document
-          .getElementById('search')
-          .value
-          .toLowerCase();
+  const container =
+    document.getElementById('clientesContainer');
 
-      const filtro =
-        document
-          .getElementById('filtroStatus')
-          .value;
+  const busca =
+    document
+      .getElementById('search')
+      .value
+      .toLowerCase();
 
-      container.innerHTML = '';
+  const filtro =
+    document
+      .getElementById('filtroStatus')
+      .value;
 
-      const filtrados = clientes
+  container.innerHTML = '';
 
-        .filter(cliente =>
-          cliente.nome.toLowerCase().includes(busca)
-        )
+  const filtrados = clientes
 
-        .filter(cliente => {
+    .filter(cliente =>
+      cliente.nome.toLowerCase().includes(busca)
+    )
 
-          if(filtro === 'Todos') return true;
+    .filter(cliente => {
 
-          return cliente.status === filtro;
-        });
+      if(filtro === 'Todos') return true;
 
-      const inicio =
-        (paginaAtual - 1) * clientesPorPagina;
+      return cliente.status === filtro;
+    });
 
-      const fim =
-        inicio + clientesPorPagina;
+  const inicio =
+    (paginaAtual - 1) * clientesPorPagina;
 
-      const pagina =
-        filtrados.slice(inicio, fim);
+  const fim =
+    inicio + clientesPorPagina;
 
-      pagina.forEach((cliente, index) => {
+  const pagina =
+    filtrados.slice(inicio, fim);
 
-        container.innerHTML += `
+  pagina.forEach((cliente, index) => {
 
-          <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 hover:border-orange-500 transition">
+    container.innerHTML += `
 
-            <div class="flex justify-between items-start gap-3 mb-4">
+      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 hover:border-orange-500 transition">
 
-              <div>
+        <div class="flex justify-between items-start gap-3 mb-4">
 
-                <h3 class="text-2xl font-bold">
-                  ${cliente.nome}
-                </h3>
+          <div>
 
-                <p class="text-zinc-400 mt-1">
-                  📞 ${cliente.telefone || '-'}
-                </p>
+            <h3 class="text-2xl font-bold">
+              ${cliente.nome}
+            </h3>
 
-              </div>
-
-              <span class="px-3 py-1 rounded-full text-sm ${corStatus(cliente.status)}">
-
-                ${cliente.status}
-
-              </span>
-
-            </div>
-
-            <div class="space-y-2 mb-5">
-
-              <p>
-                📶 ${cliente.planoAtual} → ${cliente.planoOfertado}
-              </p>
-
-              <p>
-                💰 Comissão: R$ ${cliente.comissao}
-              </p>
-
-            </div>
-
-            <div class="flex flex-wrap gap-2">
-
-              <button
-                onclick="copiarNumero('${cliente.telefone}')"
-                class="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-3 py-2 rounded-xl text-sm">
-
-                Copiar Número
-              </button>
-
-              <button
-                onclick="alterarStatus(${inicio + index}, 'Pensando')"
-                class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 px-3 py-2 rounded-xl text-sm">
-
-                Pensando
-              </button>
-
-              <button
-                onclick="alterarStatus(${inicio + index}, 'Não respondeu')"
-                class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-xl text-sm">
-
-                Não respondeu
-              </button>
-
-              <button
-                onclick="alterarStatus(${inicio + index}, 'Não atendeu')"
-                class="bg-zinc-500/20 hover:bg-zinc-500/30 text-zinc-300 px-3 py-2 rounded-xl text-sm">
-
-                Não atendeu
-              </button>
-
-              <button
-                onclick="alterarStatus(${inicio + index}, 'Fechado')"
-                class="bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 px-3 py-2 rounded-xl text-sm">
-
-                Fechado
-              </button>
-
-              <button
-                onclick="excluirCliente(${inicio + index})"
-                class="bg-red-900/20 hover:bg-red-900/30 text-red-300 px-3 py-2 rounded-xl text-sm">
-
-                Excluir
-              </button>
-
-            </div>
+            <p class="text-zinc-400 mt-1">
+              📞 ${cliente.telefone || '-'}
+            </p>
 
           </div>
 
-        `;
-      });
+          <span class="px-3 py-1 rounded-full text-sm ${corStatus(cliente.status)}">
 
+            ${cliente.status}
+
+          </span>
+
+        </div>
+
+        <div class="space-y-3 mb-5">
+
+          <p>
+            📶 Plano Atual:
+            <strong>${cliente.planoAtual}</strong>
+          </p>
+
+          <div>
+
+            <p class="mb-2">
+              🚀 Plano Escolhido:
+            </p>
+
+            <select
+              onchange="alterarPlano(${inicio + index}, this.value)"
+              class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 outline-none">
+
+              <option value="500MB" ${cliente.planoOfertado === '500MB' ? 'selected' : ''}>
+                500MB
+              </option>
+
+              <option value="600MB" ${cliente.planoOfertado === '600MB' ? 'selected' : ''}>
+                600MB
+              </option>
+
+              <option value="800MB" ${cliente.planoOfertado === '800MB' ? 'selected' : ''}>
+                800MB
+              </option>
+
+              <option value="1GB" ${cliente.planoOfertado === '1GB' ? 'selected' : ''}>
+                1GB
+              </option>
+
+            </select>
+
+          </div>
+
+          <p>
+            💰 Comissão:
+            <strong>R$ ${cliente.comissao}</strong>
+          </p>
+
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+
+          <button
+            onclick="copiarNumero('${cliente.telefone}')"
+            class="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-3 py-2 rounded-xl text-sm">
+
+            Copiar Número
+          </button>
+
+          <button
+            onclick="alterarStatus(${inicio + index}, 'Pensando')"
+            class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 px-3 py-2 rounded-xl text-sm">
+
+            Pensando
+          </button>
+
+          <button
+            onclick="alterarStatus(${inicio + index}, 'Não respondeu')"
+            class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-xl text-sm">
+
+            Não respondeu
+          </button>
+
+          <button
+            onclick="alterarStatus(${inicio + index}, 'Não atendeu')"
+            class="bg-zinc-500/20 hover:bg-zinc-500/30 text-zinc-300 px-3 py-2 rounded-xl text-sm">
+
+            Não atendeu
+          </button>
+
+          <button
+            onclick="alterarStatus(${inicio + index}, 'Fechado')"
+            class="bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 px-3 py-2 rounded-xl text-sm">
+
+            Fechado
+          </button>
+
+          <button
+            onclick="excluirCliente(${inicio + index})"
+            class="bg-red-900/20 hover:bg-red-900/30 text-red-300 px-3 py-2 rounded-xl text-sm">
+
+            Excluir
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+  });
+
+  const totalClientes =
+    clientes.length;
+
+  const upsFechados =
+    clientes.filter(cliente =>
+      cliente.status === 'Fechado'
+    ).length;
+
+  const pendentes =
+    clientes.filter(cliente =>
+      cliente.status !== 'Fechado'
+    ).length;
+
+  const comissaoTotal =
+    clientes
+
+      .filter(cliente =>
+        cliente.status === 'Fechado'
+      )
+
+      .reduce(
+        (total, cliente) =>
+          total + Number(cliente.comissao || 0),
+        0
+      );
+
+  document.getElementById('totalClientes')
+    .innerText = totalClientes;
+
+  document.getElementById('upsFechados')
+    .innerText = upsFechados;
+
+  document.getElementById('pendentes')
+    .innerText = pendentes;
+
+  document.getElementById('comissaoTotal')
+    .innerText = `R$ ${comissaoTotal}`;
+
+  const totalPaginas =
+    Math.ceil(filtrados.length / clientesPorPagina) || 1;
+
+  document.getElementById('paginaInfo')
+    .innerText =
+      `Página ${paginaAtual} de ${totalPaginas}`;
+}
+
+function alterarPlano(index, novoPlano) {
+
+  clientes[index].planoOfertado = novoPlano;
+
+  const valorAtual =
+    valoresPlanos[clientes[index].planoAtual];
+
+  const valorNovo =
+    valoresPlanos[novoPlano];
+
+  clientes[index].comissao =
+    valorNovo - valorAtual;
+
+  salvarClientes();
+
+  renderizarClientes();
+}
+    function alterarPlano(index, novoPlano) {
+
+  clientes[index].planoOfertado = novoPlano;
+
+  const valorAtual =
+    valoresPlanos[clientes[index].planoAtual];
+
+  const valorNovo =
+    valoresPlanos[novoPlano];
+
+  clientes[index].comissao =
+    valorNovo - valorAtual;
+
+  salvarClientes();
+
+  renderizarClientes();
+}
       const totalClientes =
         clientes.length;
 
