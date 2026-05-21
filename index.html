@@ -15,18 +15,22 @@
 
 <body class="bg-zinc-950 text-white min-h-screen">
 
-  <div class="max-w-7xl mx-auto p-6">
+  <div class="max-w-[1800px] mx-auto p-6">
 
 ```
 <!-- HEADER -->
-<div class="flex flex-col md:flex-row justify-between gap-4 mb-8">
+<div class="flex flex-col lg:flex-row justify-between gap-4 mb-8">
 
   <div>
-    <h1 class="text-5xl font-bold">🧡 UP Manager</h1>
+
+    <h1 class="text-5xl font-bold">
+      🧡 UP Manager
+    </h1>
 
     <p class="text-zinc-400 mt-2">
-      Painel pessoal de gestão de UPs da Nicole
+      CRM pessoal de UPs da Nicole
     </p>
+
   </div>
 
   <div class="flex flex-wrap gap-3">
@@ -49,6 +53,7 @@
         onchange="importarPlanilha(event)"
         class="hidden"
       />
+
     </label>
 
     <button
@@ -63,32 +68,72 @@
 </div>
 
 <!-- DASHBOARD -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
 
   <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-    <p class="text-zinc-400 text-sm">Clientes</p>
-    <h2 id="totalClientes" class="text-4xl font-bold mt-2">0</h2>
+
+    <p class="text-zinc-400 text-sm">
+      Clientes
+    </p>
+
+    <h2
+      id="totalClientes"
+      class="text-4xl font-bold mt-2">
+
+      0
+    </h2>
+
   </div>
 
   <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-    <p class="text-zinc-400 text-sm">UPs Fechados</p>
-    <h2 id="upsFechados" class="text-4xl font-bold mt-2">0</h2>
+
+    <p class="text-zinc-400 text-sm">
+      Fechados
+    </p>
+
+    <h2
+      id="upsFechados"
+      class="text-4xl font-bold mt-2">
+
+      0
+    </h2>
+
   </div>
 
   <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-    <p class="text-zinc-400 text-sm">Comissão Prevista</p>
-    <h2 id="comissaoTotal" class="text-4xl font-bold mt-2">R$ 0</h2>
+
+    <p class="text-zinc-400 text-sm">
+      Comissão
+    </p>
+
+    <h2
+      id="comissaoTotal"
+      class="text-4xl font-bold mt-2">
+
+      R$ 0
+    </h2>
+
   </div>
 
   <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-    <p class="text-zinc-400 text-sm">Pendentes</p>
-    <h2 id="pendentes" class="text-4xl font-bold mt-2">0</h2>
+
+    <p class="text-zinc-400 text-sm">
+      Pendentes
+    </p>
+
+    <h2
+      id="pendentes"
+      class="text-4xl font-bold mt-2">
+
+      0
+    </h2>
+
   </div>
 
 </div>
 
-<!-- FILTROS -->
-<div class="flex flex-col md:flex-row gap-4 mb-8">
+<!-- BUSCA -->
+<div class="mb-8">
 
   <input
     type="text"
@@ -98,103 +143,136 @@
     class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 outline-none focus:border-orange-500"
   />
 
-  <select
-    id="filtroStatus"
-    onchange="renderizarClientes()"
-    class="bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 outline-none">
-
-    <option value="Todos">Todos Status</option>
-    <option value="Novo">Novo</option>
-    <option value="Pensando">Pensando</option>
-    <option value="Não respondeu">Não respondeu</option>
-    <option value="Não atendeu">Não atendeu</option>
-    <option value="Fechado">Fechado</option>
-
-  </select>
-
 </div>
 
-<!-- CLIENTES -->
+<!-- KANBAN -->
 <div
-  id="clientesContainer"
-  class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-</div>
+  class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
 
-<!-- PAGINAÇÃO -->
-<div class="flex justify-center items-center gap-4 mt-10">
+  <!-- NOVO -->
+  <div class="bg-zinc-900/50 rounded-3xl p-4">
 
-  <button
-    onclick="paginaAnterior()"
-    class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl">
+    <div class="flex items-center justify-between mb-4">
 
-    ← Anterior
-  </button>
+      <h2 class="text-xl font-bold text-blue-400">
+        🔵 Novos
+      </h2>
 
-  <span
-    id="paginaInfo"
-    class="text-zinc-400">
-  </span>
+      <span
+        id="countNovo"
+        class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm">
 
-  <button
-    onclick="proximaPagina()"
-    class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl">
+        0
+      </span>
 
-    Próxima →
-  </button>
+    </div>
 
-</div>
-```
+    <div
+      id="novoContainer"
+      class="space-y-4">
+    </div>
 
   </div>
 
-  <!-- MODAL -->
+  <!-- PENSANDO -->
+  <div class="bg-zinc-900/50 rounded-3xl p-4">
 
-  <div
-    id="modal"
-    class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
+    <div class="flex items-center justify-between mb-4">
 
-```
-<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 w-full max-w-xl">
+      <h2 class="text-xl font-bold text-yellow-400">
+        🟡 Pensando
+      </h2>
 
-  <div class="flex justify-between items-center mb-6">
+      <span
+        id="countPensando"
+        class="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full text-sm">
 
-    <h2 class="text-2xl font-bold">
-      Novo Cliente
-    </h2>
+        0
+      </span>
 
-    <button
-      onclick="fecharModal()"
-      class="text-zinc-400 hover:text-white">
+    </div>
 
-      ✕
-    </button>
-
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-    <input
-      id="cliente"
-      type="text"
-      placeholder="Cliente"
-      class="bg-zinc-800 rounded-2xl px-4 py-3 outline-none"
-    />
-
-    <input
-      id="telefone"
-      type="text"
-      placeholder="Telefone"
-      class="bg-zinc-800 rounded-2xl px-4 py-3 outline-none"
-    />
+    <div
+      id="pensandoContainer"
+      class="space-y-4">
+    </div>
 
   </div>
 
-  <button
-    onclick="adicionarCliente()"
-    class="w-full bg-orange-500 hover:bg-orange-600 transition py-3 rounded-2xl mt-6 font-semibold">
+  <!-- NÃO RESPONDEU -->
+  <div class="bg-zinc-900/50 rounded-3xl p-4">
 
-    Salvar Cliente
-  </button>
+    <div class="flex items-center justify-between mb-4">
+
+      <h2 class="text-xl font-bold text-red-400">
+        🔴 Não respondeu
+      </h2>
+
+      <span
+        id="countNaoRespondeu"
+        class="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm">
+
+        0
+      </span>
+
+    </div>
+
+    <div
+      id="naoRespondeuContainer"
+      class="space-y-4">
+    </div>
+
+  </div>
+
+  <!-- NÃO ATENDEU -->
+  <div class="bg-zinc-900/50 rounded-3xl p-4">
+
+    <div class="flex items-center justify-between mb-4">
+
+      <h2 class="text-xl font-bold text-zinc-300">
+        ⚫ Não atendeu
+      </h2>
+
+      <span
+        id="countNaoAtendeu"
+        class="bg-zinc-700 text-zinc-300 px-3 py-1 rounded-full text-sm">
+
+        0
+      </span>
+
+    </div>
+
+    <div
+      id="naoAtendeuContainer"
+      class="space-y-4">
+    </div>
+
+  </div>
+
+  <!-- FECHADO -->
+  <div class="bg-zinc-900/50 rounded-3xl p-4">
+
+    <div class="flex items-center justify-between mb-4">
+
+      <h2 class="text-xl font-bold text-green-400">
+        🟢 Fechado
+      </h2>
+
+      <span
+        id="countFechado"
+        class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">
+
+        0
+      </span>
+
+    </div>
+
+    <div
+      id="fechadoContainer"
+      class="space-y-4">
+    </div>
+
+  </div>
 
 </div>
 ```
@@ -205,10 +283,6 @@
 
 let clientes =
   JSON.parse(localStorage.getItem('clientes')) || [];
-
-let paginaAtual = 1;
-
-const clientesPorPagina = 50;
 
 const valoresPlanos = {
   '100MB': 99.90,
@@ -237,54 +311,6 @@ function salvarClientes() {
     'clientes',
     JSON.stringify(clientes)
   );
-}
-
-function abrirModal() {
-
-  document
-    .getElementById('modal')
-    .classList.remove('hidden');
-
-  document
-    .getElementById('modal')
-    .classList.add('flex');
-}
-
-function fecharModal() {
-
-  document
-    .getElementById('modal')
-    .classList.add('hidden');
-
-  document
-    .getElementById('modal')
-    .classList.remove('flex');
-}
-
-function adicionarCliente() {
-
-  const nome =
-    document.getElementById('cliente').value;
-
-  const telefone =
-    document.getElementById('telefone').value;
-
-  clientes.unshift({
-
-    nome,
-    telefone,
-    planoAtual: '400MB',
-    planoOfertado: '600MB',
-    comissao: 20,
-    status: 'Novo'
-
-  });
-
-  salvarClientes();
-
-  renderizarClientes();
-
-  fecharModal();
 }
 
 function copiarNumero(numero) {
@@ -330,34 +356,117 @@ function alterarPlano(index, novoPlano) {
   renderizarClientes();
 }
 
-function corStatus(status) {
+function criarCard(cliente, index) {
 
-  switch(status) {
+  return `
 
-    case 'Novo':
-      return 'bg-blue-500/20 text-blue-400';
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
 
-    case 'Pensando':
-      return 'bg-yellow-500/20 text-yellow-400';
+      <div class="mb-4">
 
-    case 'Não respondeu':
-      return 'bg-red-500/20 text-red-400';
+        <h3 class="text-lg font-bold">
+          ${cliente.nome}
+        </h3>
 
-    case 'Não atendeu':
-      return 'bg-zinc-500/20 text-zinc-300';
+        <p class="text-zinc-400 text-sm mt-1">
+          📞 ${cliente.telefone || '-'}
+        </p>
 
-    case 'Fechado':
-      return 'bg-green-500/20 text-green-400';
+      </div>
 
-    default:
-      return 'bg-zinc-500/20 text-zinc-300';
-  }
+      <div class="space-y-3 mb-4">
+
+        <p class="text-sm">
+          📶 ${cliente.planoAtual}
+        </p>
+
+        <select
+          onchange="alterarPlano(${index}, this.value)"
+          class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-sm">
+
+          <option value="500MB" ${cliente.planoOfertado === '500MB' ? 'selected' : ''}>
+            500MB
+          </option>
+
+          <option value="600MB" ${cliente.planoOfertado === '600MB' ? 'selected' : ''}>
+            600MB
+          </option>
+
+          <option value="800MB" ${cliente.planoOfertado === '800MB' ? 'selected' : ''}>
+            800MB
+          </option>
+
+          <option value="1GB" ${cliente.planoOfertado === '1GB' ? 'selected' : ''}>
+            1GB
+          </option>
+
+        </select>
+
+        <p class="text-sm">
+          💰 Comissão:
+          <strong>R$ ${cliente.comissao}</strong>
+        </p>
+
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+
+        <button
+          onclick="copiarNumero('${cliente.telefone}')"
+          class="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-3 py-2 rounded-xl text-xs">
+
+          Copiar
+        </button>
+
+        <button
+          onclick="alterarStatus(${index}, 'Novo')"
+          class="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-3 py-2 rounded-xl text-xs">
+
+          Novo
+        </button>
+
+        <button
+          onclick="alterarStatus(${index}, 'Pensando')"
+          class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 px-3 py-2 rounded-xl text-xs">
+
+          Pensando
+        </button>
+
+        <button
+          onclick="alterarStatus(${index}, 'Não respondeu')"
+          class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-xl text-xs">
+
+          Não respondeu
+        </button>
+
+        <button
+          onclick="alterarStatus(${index}, 'Não atendeu')"
+          class="bg-zinc-700 hover:bg-zinc-600 text-zinc-300 px-3 py-2 rounded-xl text-xs">
+
+          Não atendeu
+        </button>
+
+        <button
+          onclick="alterarStatus(${index}, 'Fechado')"
+          class="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-3 py-2 rounded-xl text-xs">
+
+          Fechado
+        </button>
+
+        <button
+          onclick="excluirCliente(${index})"
+          class="bg-red-900/20 hover:bg-red-900/30 text-red-300 px-3 py-2 rounded-xl text-xs">
+
+          Excluir
+        </button>
+
+      </div>
+
+    </div>
+  `;
 }
 
 function renderizarClientes() {
-
-  const container =
-    document.getElementById('clientesContainer');
 
   const busca =
     document
@@ -365,162 +474,120 @@ function renderizarClientes() {
       .value
       .toLowerCase();
 
-  const filtro =
-    document
-      .getElementById('filtroStatus')
-      .value;
+  const containers = {
 
-  container.innerHTML = '';
+    'Novo':
+      document.getElementById('novoContainer'),
 
-  const filtrados = clientes
+    'Pensando':
+      document.getElementById('pensandoContainer'),
 
-    .filter(cliente =>
-      cliente.nome.toLowerCase().includes(busca)
-    )
+    'Não respondeu':
+      document.getElementById('naoRespondeuContainer'),
 
-    .filter(cliente => {
+    'Não atendeu':
+      document.getElementById('naoAtendeuContainer'),
 
-      if(filtro === 'Todos') return true;
+    'Fechado':
+      document.getElementById('fechadoContainer')
+  };
 
-      return cliente.status === filtro;
+  Object.values(containers)
+    .forEach(container => {
+
+      container.innerHTML = '';
     });
 
-  const inicio =
-    (paginaAtual - 1) * clientesPorPagina;
+  let countNovo = 0;
+  let countPensando = 0;
+  let countNaoRespondeu = 0;
+  let countNaoAtendeu = 0;
+  let countFechado = 0;
 
-  const fim =
-    inicio + clientesPorPagina;
+  clientes.forEach((cliente, index) => {
 
-  const pagina =
-    filtrados.slice(inicio, fim);
+    if(
+      !cliente.nome
+        .toLowerCase()
+        .includes(busca)
+    ) return;
 
-  pagina.forEach((cliente, index) => {
+    const card =
+      criarCard(cliente, index);
 
-    container.innerHTML += `
+    switch(cliente.status) {
 
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 hover:border-orange-500 transition">
+      case 'Pensando':
 
-        <div class="flex justify-between items-start gap-3 mb-4">
+        containers['Pensando']
+          .innerHTML += card;
 
-          <div>
+        countPensando++;
 
-            <h3 class="text-2xl font-bold">
-              ${cliente.nome}
-            </h3>
+      break;
 
-            <p class="text-zinc-400 mt-1">
-              📞 ${cliente.telefone || '-'}
-            </p>
+      case 'Não respondeu':
 
-          </div>
+        containers['Não respondeu']
+          .innerHTML += card;
 
-          <span class="px-3 py-1 rounded-full text-sm ${corStatus(cliente.status)}">
+        countNaoRespondeu++;
 
-            ${cliente.status}
+      break;
 
-          </span>
+      case 'Não atendeu':
 
-        </div>
+        containers['Não atendeu']
+          .innerHTML += card;
 
-        <div class="space-y-3 mb-5">
+        countNaoAtendeu++;
 
-          <p>
-            📶 Plano Atual:
-            <strong>${cliente.planoAtual}</strong>
-          </p>
+      break;
 
-          <div>
+      case 'Fechado':
 
-            <p class="mb-2">
-              🚀 Plano Escolhido:
-            </p>
+        containers['Fechado']
+          .innerHTML += card;
 
-            <select
-              onchange="alterarPlano(${inicio + index}, this.value)"
-              class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 outline-none">
+        countFechado++;
 
-              <option value="500MB" ${cliente.planoOfertado === '500MB' ? 'selected' : ''}>500MB</option>
+      break;
 
-              <option value="600MB" ${cliente.planoOfertado === '600MB' ? 'selected' : ''}>600MB</option>
+      default:
 
-              <option value="800MB" ${cliente.planoOfertado === '800MB' ? 'selected' : ''}>800MB</option>
+        containers['Novo']
+          .innerHTML += card;
 
-              <option value="1GB" ${cliente.planoOfertado === '1GB' ? 'selected' : ''}>1GB</option>
-
-            </select>
-
-          </div>
-
-          <p>
-            💰 Comissão:
-            <strong>R$ ${cliente.comissao}</strong>
-          </p>
-
-        </div>
-
-        <div class="flex flex-wrap gap-2">
-
-          <button
-            onclick="copiarNumero('${cliente.telefone}')"
-            class="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-3 py-2 rounded-xl text-sm">
-
-            Copiar Número
-          </button>
-
-          <button
-            onclick="alterarStatus(${inicio + index}, 'Pensando')"
-            class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 px-3 py-2 rounded-xl text-sm">
-
-            Pensando
-          </button>
-
-          <button
-            onclick="alterarStatus(${inicio + index}, 'Não respondeu')"
-            class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-xl text-sm">
-
-            Não respondeu
-          </button>
-
-          <button
-            onclick="alterarStatus(${inicio + index}, 'Não atendeu')"
-            class="bg-zinc-500/20 hover:bg-zinc-500/30 text-zinc-300 px-3 py-2 rounded-xl text-sm">
-
-            Não atendeu
-          </button>
-
-          <button
-            onclick="alterarStatus(${inicio + index}, 'Fechado')"
-            class="bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 px-3 py-2 rounded-xl text-sm">
-
-            Fechado
-          </button>
-
-          <button
-            onclick="excluirCliente(${inicio + index})"
-            class="bg-red-900/20 hover:bg-red-900/30 text-red-300 px-3 py-2 rounded-xl text-sm">
-
-            Excluir
-          </button>
-
-        </div>
-
-      </div>
-
-    `;
+        countNovo++;
+    }
   });
 
-  const totalClientes =
-    clientes.length;
+  document.getElementById('countNovo')
+    .innerText = countNovo;
 
-  const upsFechados =
-    clientes.filter(cliente =>
-      cliente.status === 'Fechado'
-    ).length;
+  document.getElementById('countPensando')
+    .innerText = countPensando;
 
-  const pendentes =
-    clientes.filter(cliente =>
-      cliente.status !== 'Fechado'
-    ).length;
+  document.getElementById('countNaoRespondeu')
+    .innerText = countNaoRespondeu;
+
+  document.getElementById('countNaoAtendeu')
+    .innerText = countNaoAtendeu;
+
+  document.getElementById('countFechado')
+    .innerText = countFechado;
+
+  document.getElementById('totalClientes')
+    .innerText = clientes.length;
+
+  document.getElementById('upsFechados')
+    .innerText = countFechado;
+
+  document.getElementById('pendentes')
+    .innerText =
+      clientes.filter(cliente =>
+        cliente.status !== 'Fechado'
+      ).length;
 
   const comissaoTotal =
     clientes
@@ -535,47 +602,9 @@ function renderizarClientes() {
         0
       );
 
-  document.getElementById('totalClientes')
-    .innerText = totalClientes;
-
-  document.getElementById('upsFechados')
-    .innerText = upsFechados;
-
-  document.getElementById('pendentes')
-    .innerText = pendentes;
-
   document.getElementById('comissaoTotal')
-    .innerText = `R$ ${comissaoTotal}`;
-
-  const totalPaginas =
-    Math.ceil(filtrados.length / clientesPorPagina) || 1;
-
-  document.getElementById('paginaInfo')
     .innerText =
-      `Página ${paginaAtual} de ${totalPaginas}`;
-}
-
-function paginaAnterior() {
-
-  if(paginaAtual > 1) {
-
-    paginaAtual--;
-
-    renderizarClientes();
-  }
-}
-
-function proximaPagina() {
-
-  const totalPaginas =
-    Math.ceil(clientes.length / clientesPorPagina);
-
-  if(paginaAtual < totalPaginas) {
-
-    paginaAtual++;
-
-    renderizarClientes();
-  }
+      `R$ ${comissaoTotal}`;
 }
 
 function exportarClientes() {
@@ -637,7 +666,8 @@ function importarPlanilha(event) {
 
       const row = rows[i];
 
-      if(!row || row.length === 0) continue;
+      if(!row || row.length === 0)
+        continue;
 
       const nome =
         row[0] || `Cliente ${i}`;
@@ -667,11 +697,12 @@ function importarPlanilha(event) {
         telefone: String(telefone),
 
         planoAtual,
+
         planoOfertado,
+
         comissao,
 
         status: 'Novo'
-
       });
     }
 
@@ -687,6 +718,36 @@ function importarPlanilha(event) {
   };
 
   reader.readAsArrayBuffer(file);
+}
+
+function abrirModal() {
+
+  const nome =
+    prompt('Nome do cliente');
+
+  if(!nome) return;
+
+  const telefone =
+    prompt('Telefone do cliente');
+
+  clientes.unshift({
+
+    nome,
+
+    telefone,
+
+    planoAtual: '400MB',
+
+    planoOfertado: '600MB',
+
+    comissao: 20,
+
+    status: 'Novo'
+  });
+
+  salvarClientes();
+
+  renderizarClientes();
 }
 
 renderizarClientes();
