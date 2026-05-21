@@ -193,143 +193,159 @@
 
   </div>
 
-  <script>
+<script>
 
-    let clientes =
-      JSON.parse(localStorage.getItem('clientes')) || [];
+let clientes =
+  JSON.parse(localStorage.getItem('clientes')) || [];
 
-    let paginaAtual = 1;
+let paginaAtual = 1;
 
-    const clientesPorPagina = 50;
+const clientesPorPagina = 50;
 
-    const valoresPlanos = {
-      '100MB': 99.90,
-      '200MB': 109.90,
-      '300MB': 129.90,
-      '400MB': 109.90,
-      '500MB': 109.90,
-      '600MB': 129.90,
-      '800MB': 149.90,
-      '1GB': 199.90
-    };
+const valoresPlanos = {
+  '100MB': 99.90,
+  '200MB': 109.90,
+  '300MB': 129.90,
+  '400MB': 109.90,
+  '500MB': 109.90,
+  '600MB': 129.90,
+  '800MB': 149.90,
+  '1GB': 199.90
+};
 
-    const sugestoesUP = {
-      '100MB': '500MB',
-      '200MB': '600MB',
-      '300MB': '800MB',
-      '400MB': '600MB',
-      '500MB': '600MB',
-      '600MB': '800MB',
-      '800MB': '1GB'
-    };
+const sugestoesUP = {
+  '100MB': '500MB',
+  '200MB': '600MB',
+  '300MB': '800MB',
+  '400MB': '600MB',
+  '500MB': '600MB',
+  '600MB': '800MB',
+  '800MB': '1GB'
+};
 
-    function salvarClientes() {
+function salvarClientes() {
 
-      localStorage.setItem(
-        'clientes',
-        JSON.stringify(clientes)
-      );
-    }
+  localStorage.setItem(
+    'clientes',
+    JSON.stringify(clientes)
+  );
+}
 
-    function abrirModal() {
+function abrirModal() {
 
-      document
-        .getElementById('modal')
-        .classList.remove('hidden');
+  document
+    .getElementById('modal')
+    .classList.remove('hidden');
 
-      document
-        .getElementById('modal')
-        .classList.add('flex');
-    }
+  document
+    .getElementById('modal')
+    .classList.add('flex');
+}
 
-    function fecharModal() {
+function fecharModal() {
 
-      document
-        .getElementById('modal')
-        .classList.add('hidden');
+  document
+    .getElementById('modal')
+    .classList.add('hidden');
 
-      document
-        .getElementById('modal')
-        .classList.remove('flex');
-    }
+  document
+    .getElementById('modal')
+    .classList.remove('flex');
+}
 
-    function adicionarCliente() {
+function adicionarCliente() {
 
-      const nome =
-        document.getElementById('cliente').value;
+  const nome =
+    document.getElementById('cliente').value;
 
-      const telefone =
-        document.getElementById('telefone').value;
+  const telefone =
+    document.getElementById('telefone').value;
 
-      clientes.unshift({
+  clientes.unshift({
 
-        nome,
-        telefone,
-        planoAtual: '400MB',
-        planoOfertado: '600MB',
-        comissao: 20,
-        status: 'Novo',
-        followup: ''
+    nome,
+    telefone,
+    planoAtual: '400MB',
+    planoOfertado: '600MB',
+    comissao: 20,
+    status: 'Novo',
+    followup: ''
 
-      });
+  });
 
-      salvarClientes();
+  salvarClientes();
 
-      renderizarClientes();
+  renderizarClientes();
 
-      fecharModal();
-    }
+  fecharModal();
+}
 
-    function copiarNumero(numero) {
+function copiarNumero(numero) {
 
-      navigator.clipboard.writeText(numero);
+  navigator.clipboard.writeText(numero);
 
-      alert('Número copiado 😭🧡');
-    }
+  alert('Número copiado 😭🧡');
+}
 
-    function alterarStatus(index, status) {
+function alterarStatus(index, status) {
 
-      clientes[index].status = status;
+  clientes[index].status = status;
 
-      salvarClientes();
+  salvarClientes();
 
-      renderizarClientes();
-    }
+  renderizarClientes();
+}
 
-    function excluirCliente(index) {
+function excluirCliente(index) {
 
-      clientes.splice(index, 1);
+  clientes.splice(index, 1);
 
-      salvarClientes();
+  salvarClientes();
 
-      renderizarClientes();
-    }
+  renderizarClientes();
+}
 
-    function corStatus(status) {
+function alterarPlano(index, novoPlano) {
 
-      switch(status) {
+  clientes[index].planoOfertado = novoPlano;
 
-        case 'Novo':
-          return 'bg-blue-500/20 text-blue-400';
+  const valorAtual =
+    valoresPlanos[clientes[index].planoAtual];
 
-        case 'Pensando':
-          return 'bg-yellow-500/20 text-yellow-400';
+  const valorNovo =
+    valoresPlanos[novoPlano];
 
-        case 'Não respondeu':
-          return 'bg-red-500/20 text-red-400';
+  clientes[index].comissao =
+    valorNovo - valorAtual;
 
-        case 'Não atendeu':
-          return 'bg-zinc-500/20 text-zinc-300';
+  salvarClientes();
 
-        case 'Fechado':
-          return 'bg-green-500/20 text-green-400';
+  renderizarClientes();
+}
 
-        default:
-          return 'bg-zinc-500/20 text-zinc-300';
-      }
-    }
+function corStatus(status) {
 
-  <!-- SUBSTITUA APENAS A FUNÇÃO renderizarClientes() POR ESTA -->
+  switch(status) {
+
+    case 'Novo':
+      return 'bg-blue-500/20 text-blue-400';
+
+    case 'Pensando':
+      return 'bg-yellow-500/20 text-yellow-400';
+
+    case 'Não respondeu':
+      return 'bg-red-500/20 text-red-400';
+
+    case 'Não atendeu':
+      return 'bg-zinc-500/20 text-zinc-300';
+
+    case 'Fechado':
+      return 'bg-green-500/20 text-green-400';
+
+    default:
+      return 'bg-zinc-500/20 text-zinc-300';
+  }
+}
 
 function renderizarClientes() {
 
@@ -416,21 +432,13 @@ function renderizarClientes() {
               onchange="alterarPlano(${inicio + index}, this.value)"
               class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 outline-none">
 
-              <option value="500MB" ${cliente.planoOfertado === '500MB' ? 'selected' : ''}>
-                500MB
-              </option>
+              <option value="500MB" ${cliente.planoOfertado === '500MB' ? 'selected' : ''}>500MB</option>
 
-              <option value="600MB" ${cliente.planoOfertado === '600MB' ? 'selected' : ''}>
-                600MB
-              </option>
+              <option value="600MB" ${cliente.planoOfertado === '600MB' ? 'selected' : ''}>600MB</option>
 
-              <option value="800MB" ${cliente.planoOfertado === '800MB' ? 'selected' : ''}>
-                800MB
-              </option>
+              <option value="800MB" ${cliente.planoOfertado === '800MB' ? 'selected' : ''}>800MB</option>
 
-              <option value="1GB" ${cliente.planoOfertado === '1GB' ? 'selected' : ''}>
-                1GB
-              </option>
+              <option value="1GB" ${cliente.planoOfertado === '1GB' ? 'selected' : ''}>1GB</option>
 
             </select>
 
@@ -540,219 +548,145 @@ function renderizarClientes() {
       `Página ${paginaAtual} de ${totalPaginas}`;
 }
 
-function alterarPlano(index, novoPlano) {
+function paginaAnterior() {
 
-  clientes[index].planoOfertado = novoPlano;
+  if(paginaAtual > 1) {
 
-  const valorAtual =
-    valoresPlanos[clientes[index].planoAtual];
+    paginaAtual--;
 
-  const valorNovo =
-    valoresPlanos[novoPlano];
-
-  clientes[index].comissao =
-    valorNovo - valorAtual;
-
-  salvarClientes();
-
-  renderizarClientes();
+    renderizarClientes();
+  }
 }
-    function alterarPlano(index, novoPlano) {
 
-  clientes[index].planoOfertado = novoPlano;
+function proximaPagina() {
 
-  const valorAtual =
-    valoresPlanos[clientes[index].planoAtual];
+  const totalPaginas =
+    Math.ceil(clientes.length / clientesPorPagina);
 
-  const valorNovo =
-    valoresPlanos[novoPlano];
+  if(paginaAtual < totalPaginas) {
 
-  clientes[index].comissao =
-    valorNovo - valorAtual;
+    paginaAtual++;
 
-  salvarClientes();
-
-  renderizarClientes();
+    renderizarClientes();
+  }
 }
-      const totalClientes =
-        clientes.length;
 
-      const upsFechados =
-        clientes.filter(cliente =>
-          cliente.status === 'Fechado'
-        ).length;
+function exportarClientes() {
 
-      const pendentes =
-        clientes.filter(cliente =>
-          cliente.status !== 'Fechado'
-        ).length;
-
-      const comissaoTotal =
-        clientes.reduce(
-          (total, cliente) =>
-            total + Number(cliente.comissao || 0),
-          0
-        );
-
-      document.getElementById('totalClientes')
-        .innerText = totalClientes;
-
-      document.getElementById('upsFechados')
-        .innerText = upsFechados;
-
-      document.getElementById('pendentes')
-        .innerText = pendentes;
-
-      document.getElementById('comissaoTotal')
-        .innerText = `R$ ${comissaoTotal}`;
-
-      const totalPaginas =
-        Math.ceil(filtrados.length / clientesPorPagina) || 1;
-
-      document.getElementById('paginaInfo')
-        .innerText =
-          `Página ${paginaAtual} de ${totalPaginas}`;
+  const blob = new Blob(
+    [JSON.stringify(clientes, null, 2)],
+    {
+      type: 'application/json'
     }
+  );
 
-    function paginaAnterior() {
+  const url =
+    URL.createObjectURL(blob);
 
-      if(paginaAtual > 1) {
+  const a =
+    document.createElement('a');
 
-        paginaAtual--;
+  a.href = url;
 
-        renderizarClientes();
-      }
-    }
+  a.download = 'clientes.json';
 
-    function proximaPagina() {
+  a.click();
+}
 
-      const totalPaginas =
-        Math.ceil(clientes.length / clientesPorPagina);
+function importarPlanilha(event) {
 
-      if(paginaAtual < totalPaginas) {
+  const file =
+    event.target.files[0];
 
-        paginaAtual++;
+  if(!file) return;
 
-        renderizarClientes();
-      }
-    }
+  const reader =
+    new FileReader();
 
-    function exportarClientes() {
+  reader.onload = function(e) {
 
-      const blob = new Blob(
-        [JSON.stringify(clientes, null, 2)],
-        {
-          type: 'application/json'
-        }
+    const data =
+      new Uint8Array(e.target.result);
+
+    const workbook =
+      XLSX.read(data, {
+        type: 'array'
+      });
+
+    const worksheet =
+      workbook.Sheets[
+        workbook.SheetNames[0]
+      ];
+
+    const rows =
+      XLSX.utils.sheet_to_json(
+        worksheet,
+        { header: 1 }
       );
 
-      const url =
-        URL.createObjectURL(blob);
+    const novosClientes = [];
 
-      const a =
-        document.createElement('a');
+    for(let i = 1; i < rows.length; i++) {
 
-      a.href = url;
+      const row = rows[i];
 
-      a.download = 'clientes.json';
+      if(!row || row.length === 0) continue;
 
-      a.click();
+      const nome =
+        row[0] || `Cliente ${i}`;
+
+      const telefone =
+        row[1] || '';
+
+      const planoAtual =
+        '400MB';
+
+      const planoOfertado =
+        sugestoesUP[planoAtual];
+
+      const valorAtual =
+        valoresPlanos[planoAtual];
+
+      const valorNovo =
+        valoresPlanos[planoOfertado];
+
+      const comissao =
+        valorNovo - valorAtual;
+
+      novosClientes.push({
+
+        nome: String(nome),
+
+        telefone: String(telefone),
+
+        planoAtual,
+        planoOfertado,
+        comissao,
+
+        status: 'Novo',
+
+        followup: ''
+
+      });
     }
 
-    function importarPlanilha(event) {
+    clientes = novosClientes;
 
-      const file =
-        event.target.files[0];
-
-      if(!file) return;
-
-      const reader =
-        new FileReader();
-
-      reader.onload = function(e) {
-
-        const data =
-          new Uint8Array(e.target.result);
-
-        const workbook =
-          XLSX.read(data, {
-            type: 'array'
-          });
-
-        const worksheet =
-          workbook.Sheets[
-            workbook.SheetNames[0]
-          ];
-
-        const rows =
-          XLSX.utils.sheet_to_json(
-            worksheet,
-            { header: 1 }
-          );
-
-        const novosClientes = [];
-
-        for(let i = 1; i < rows.length; i++) {
-
-          const row = rows[i];
-
-          if(!row || row.length === 0) continue;
-
-          const nome =
-            row[0] || `Cliente ${i}`;
-
-          const telefone =
-            row[1] || '';
-
-          const planoAtual =
-            '400MB';
-
-          const planoOfertado =
-            sugestoesUP[planoAtual];
-
-          const valorAtual =
-            valoresPlanos[planoAtual];
-
-          const valorNovo =
-            valoresPlanos[planoOfertado];
-
-          const comissao =
-            valorNovo - valorAtual;
-
-          novosClientes.push({
-
-            nome: String(nome),
-
-            telefone: String(telefone),
-
-            planoAtual,
-            planoOfertado,
-            comissao,
-
-            status: 'Novo',
-
-            followup: ''
-
-          });
-        }
-
-        clientes = novosClientes;
-
-        salvarClientes();
-
-        renderizarClientes();
-
-        alert(
-          `${novosClientes.length} clientes importados 😭🧡`
-        );
-      };
-
-      reader.readAsArrayBuffer(file);
-    }
+    salvarClientes();
 
     renderizarClientes();
 
-  </script>
+    alert(
+      `${novosClientes.length} clientes importados 😭🧡`
+    );
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+renderizarClientes();
+
+</script>
 
 </body>
 </html>
