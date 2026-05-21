@@ -71,7 +71,7 @@
       </div>
 
       <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-        <p class="text-zinc-400 text-sm">Comissão</p>
+        <p class="text-zinc-400 text-sm">Comissão Total</p>
         <h2 id="comissaoTotal" class="text-4xl font-bold mt-2">R$0</h2>
       </div>
 
@@ -255,6 +255,13 @@
       fecharModal();
     }
 
+    function copiarNumero(numero) {
+
+      navigator.clipboard.writeText(numero);
+
+      alert('Número copiado 😭🧡');
+    }
+
     function corStatus(status) {
 
       switch(status) {
@@ -292,7 +299,6 @@
 
       container.innerHTML = '';
 
-      let totalComissao = 0;
       let upsFechados = 0;
       let pendentes = 0;
 
@@ -319,8 +325,6 @@
         filtrados.slice(inicio, fim);
 
       pagina.forEach((cliente, index) => {
-
-        totalComissao += cliente.comissao;
 
         if(cliente.status === 'Fechado') {
           upsFechados++;
@@ -374,13 +378,12 @@
 
             <div class="flex flex-wrap gap-2">
 
-              <a
-                href="https://wa.me/55${cliente.telefone}"
-                target="_blank"
+              <button
+                onclick="copiarNumero('${cliente.telefone}')"
                 class="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-3 py-2 rounded-xl text-sm">
 
-                WhatsApp
-              </a>
+                Copiar Número
+              </button>
 
               <button
                 onclick="marcarFechado(${index})"
@@ -402,6 +405,11 @@
         `;
       });
 
+      const comissaoTotal = clientes.reduce(
+        (total, cliente) => total + cliente.comissao,
+        0
+      );
+
       document.getElementById('totalClientes')
         .innerText = clientes.length;
 
@@ -409,7 +417,7 @@
         .innerText = upsFechados;
 
       document.getElementById('comissaoTotal')
-        .innerText = `R$ ${totalComissao}`;
+        .innerText = `R$ ${comissaoTotal}`;
 
       document.getElementById('pendentes')
         .innerText = pendentes;
