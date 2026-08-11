@@ -1,0 +1,57 @@
+name: Fix status lag
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-status-lag.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Corrigir sincronização de status
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+
+          old = "let clientes=[];let filtroRetorno=false;let carregandoClientes=false;let agendaMes=new Date().toISOString().slice(0,7);const LIMITE_VISUAL=60;"
+          new = "let clientes=[];let filtroRetorno=false;let carregandoClientes=false;let agendaMes=new Date().toISOString().slice(0,7);let versaoDados=0;const mutacoesPendentes=new Map();const ultimaMutacaoPorId=new Map();const LIMITE_VISUAL=60;"
+          assert old in s, 'variaveis globais nao encontradas'
+          s = s.replace(old, new, 1)
+
+          old = "db.auth.onAuthStateChange(async(_e,session)=>{const ok=!!session;document.getElementById('authView').classList.toggle('hidden',ok);document.getElementById('appView').classList.toggle('hidden',!ok);if(ok)await carregarClientes()});"
+          new = "db.auth.onAuthStateChange(async(event,session)=>{const ok=!!session;document.getElementById('authView').classList.toggle('hidden',ok);document.getElementById('appView').classList.toggle('hidden',!ok);if(ok&&event==='SIGNED_IN'&&clientes.length===0)await carregarClientes();if(!ok)clientes=[]});"
+          assert old in s, 'callback auth nao encontrado'
+          s = s.replace(old, new, 1)
+
+          old = "async function carregarClientes(){if(carregandoClientes)return;carregandoClientes=true;document.getElementById('loading').classList.remove('hidden');const carregados=[];let inicio=0,pagina=1000;try{while(true){const {data,error}=await db.from('clientes_up').select('*').order('cliente',{ascending:true}).range(inicio,inicio+pagina-1);if(error){toast('Erro ao carregar: '+error.message);return}carregados.push(...(data||[]));if(!data||data.length<pagina)break;inicio+=pagina}clientes=Array.from(new Map(carregados.map(c=>[c.id,c])).values());atualizarResumo();renderizarClientes();renderizarAgenda();renderizarComissoes()}finally{carregandoClientes=false;document.getElementById('loading').classList.add('hidden')}}"
+          new = "function renderTudo(){atualizarResumo();renderizarClientes();renderizarAgenda();renderizarComissoes()}\nasync function carregarClientes(){if(carregandoClientes)return;carregandoClientes=true;const versaoInicio=versaoDados;const pendentesNoInicio=new Set(mutacoesPendentes.keys());document.getElementById('loading').classList.remove('hidden');const carregados=[];let inicio=0,pagina=1000;try{while(true){const {data,error}=await db.from('clientes_up').select('*').order('cliente',{ascending:true}).range(inicio,inicio+pagina-1);if(error){toast('Erro ao carregar: '+error.message);return}carregados.push(...(data||[]));if(!data||data.length<pagina)break;inicio+=pagina}const mapa=new Map(carregados.map(c=>[c.id,c]));const locais=new Map(clientes.map(c=>[c.id,c]));for(const [id,local] of locais){const mudouDepois=(ultimaMutacaoPorId.get(id)||0)>versaoInicio;if(pendentesNoInicio.has(id)||mutacoesPendentes.has(id)||mudouDepois)mapa.set(id,local)}clientes=Array.from(mapa.values());renderTudo()}finally{carregandoClientes=false;document.getElementById('loading').classList.add('hidden')}}"
+          assert old in s, 'carregarClientes nao encontrado'
+          s = s.replace(old, new, 1)
+
+          old = "async function atualizarStatus(id,status){const {data,error}=await db.from('clientes_up').update({status}).eq('id',id).select().single();if(error){toast('Erro: '+error.message);return}substituirCliente(data);atualizarResumo();renderizarClientes();renderizarAgenda();renderizarComissoes()}"
+          new = "async function atualizarStatus(id,status){if(mutacoesPendentes.has(id)){toast('Salvando alteração...');return false}const anterior=clientes.find(c=>c.id===id);if(!anterior)return false;const versao=++versaoDados;ultimaMutacaoPorId.set(id,versao);mutacoesPendentes.set(id,versao);const otimista={...anterior,status,_salvando:true};if(status==='Primeiro contato')otimista.contato_etapa=1;if(status==='Segundo contato')otimista.contato_etapa=2;if(status==='Terceiro contato')otimista.contato_etapa=3;substituirCliente(otimista);renderTudo();const {data,error}=await db.from('clientes_up').update({status}).eq('id',id).select().single();if(mutacoesPendentes.get(id)!==versao)return false;mutacoesPendentes.delete(id);if(error){substituirCliente(anterior);renderTudo();toast('Não foi possível salvar. Tente novamente.');return false}ultimaMutacaoPorId.set(id,++versaoDados);substituirCliente(data);renderTudo();return true}"
+          assert old in s, 'atualizarStatus nao encontrado'
+          s = s.replace(old, new, 1)
+
+          old = "async function iniciarContato(id,n){await atualizarStatus(id,statusEtapa(n));toast(`${rotuloEtapa(n)} registrado`)}"
+          new = "async function iniciarContato(id,n){const ok=await atualizarStatus(id,statusEtapa(n));if(ok)toast(`${rotuloEtapa(n)} registrado`)}"
+          assert old in s, 'iniciarContato nao encontrado'
+          s = s.replace(old, new, 1)
+
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Corrige lag e evita status voltar para fila"
+          git push
