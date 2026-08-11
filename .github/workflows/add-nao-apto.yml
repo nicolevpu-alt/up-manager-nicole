@@ -1,0 +1,58 @@
+name: Add Nao Apto
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/add-nao-apto.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Atualizar interface
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+
+          s=s.replace('<option value="Aceitou">Aceitou</option>', '<option value="Aceitou">Aceitou</option><option value="Não apto">Não apto</option>')
+
+          s=s.replace('<div class="coluna"><h2>🟢 Aceitou <span id="countAceitou">0</span></h2><div id="aceitou"></div></div>\n    </section>', '<div class="coluna"><h2>🟢 Aceitou <span id="countAceitou">0</span></h2><div id="aceitou"></div></div>\n      <div id="colNaoApto" class="coluna hidden"><h2>⛔ Não apto <span id="countNaoApto">0</span></h2><div id="naoApto"></div></div>\n    </section>')
+
+          s=s.replace("if(s.includes('pens'))return 'Pensando';return null}", "if(s.includes('pens'))return 'Pensando';if(s.includes('não apto')||s.includes('nao apto'))return 'Não apto';return null}")
+
+          s=s.replace('<button class="btn text-red-300" onclick="atualizarStatus(\'${c.id}\',\'Recusou\')">Recusou</button><button class="btn text-green-300"', '<button class="btn text-red-300" onclick="atualizarStatus(\'${c.id}\',\'Recusou\')">Recusou</button><button class="btn text-zinc-400" onclick="atualizarStatus(\'${c.id}\',\'Não apto\')">Não apto</button><button class="btn text-green-300"')
+
+          old="const containers={Novo:'novo','Primeiro contato':'primeiroContato',Pensando:'pensando','Não atendeu':'naoAtendeu',Recusou:'recusou',Aceitou:'aceitou'};"
+          new="const containers={Novo:'novo','Primeiro contato':'primeiroContato',Pensando:'pensando','Não atendeu':'naoAtendeu',Recusou:'recusou',Aceitou:'aceitou','Não apto':'naoApto'};"
+          s=s.replace(old,new)
+
+          old="return (c.cliente+' '+tel).toLowerCase().includes(busca)&&(fs==='Todos'||status===fs)&&(!filtroRetorno||(status==='Não atendeu'&&c.proximo_contato&&c.proximo_contato<=hojeISO()))"
+          new="const okApto=fs==='Não apto'?status==='Não apto':status!=='Não apto';return (c.cliente+' '+tel).toLowerCase().includes(busca)&&(fs==='Todos'||status===fs)&&okApto&&(!filtroRetorno||(status==='Não atendeu'&&c.proximo_contato&&c.proximo_contato<=hojeISO()))"
+          s=s.replace(old,new)
+
+          s=s.replace("const counts={Novo:0,'Primeiro contato':0,Pensando:0,'Não atendeu':0,Recusou:0,Aceitou:0};", "const counts={Novo:0,'Primeiro contato':0,Pensando:0,'Não atendeu':0,Recusou:0,Aceitou:0,'Não apto':0};")
+
+          marker="document.getElementById('countAceitou').textContent=counts.Aceitou;"
+          s=s.replace(marker, marker+"document.getElementById('countNaoApto').textContent=counts['Não apto'];document.getElementById('colNaoApto').classList.toggle('hidden',fs!=='Não apto');")
+
+          old="const aceitos=clientes.filter(c=>c.status==='Aceitou'),trabalhados=clientes.filter(c=>!!c.status),retornos="
+          new="const ativos=clientes.filter(c=>c.status!=='Não apto'),aceitos=ativos.filter(c=>c.status==='Aceitou'),trabalhados=ativos.filter(c=>!!c.status),retornos="
+          s=s.replace(old,new)
+          s=s.replace("document.getElementById('totalClientes').textContent=clientes.length;", "document.getElementById('totalClientes').textContent=ativos.length;")
+
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Adiciona status Não apto e limpa fila ativa"
+          git push
