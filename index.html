@@ -10,335 +10,139 @@
 </head>
 <body class="bg-zinc-950 text-white min-h-screen">
 
-  <section id="authView" class="min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8 shadow-2xl">
-      <div class="text-center mb-7">
-        <div class="text-5xl mb-3">🧡</div>
-        <h1 class="text-3xl font-bold">UP Manager</h1>
-        <p class="text-zinc-400 mt-2">Entre para acessar sua base de clientes</p>
-      </div>
+<section id="authView" class="min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl">
+    <div class="text-center mb-7"><div class="text-5xl mb-3">🧡</div><h1 class="text-3xl font-bold">UP Manager</h1><p class="text-zinc-400 mt-2">Entre para acessar sua base de clientes</p></div>
+    <label class="text-sm text-zinc-400">E-mail</label>
+    <input id="email" type="email" class="w-full mt-1 mb-4 bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3" />
+    <label class="text-sm text-zinc-400">Senha</label>
+    <input id="senha" type="password" class="w-full mt-1 mb-5 bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3" />
+    <button onclick="entrar()" class="w-full bg-orange-500 hover:bg-orange-400 text-black font-bold rounded-xl py-3">Entrar</button>
+    <button onclick="criarConta()" class="w-full mt-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl py-3">Criar meu acesso</button>
+    <p id="authMsg" class="text-sm text-zinc-400 mt-4 text-center"></p>
+  </div>
+</section>
 
-      <label class="text-sm text-zinc-400">E-mail</label>
-      <input id="email" type="email" autocomplete="email" class="w-full mt-1 mb-4 bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-orange-500" placeholder="seu@email.com" />
-
-      <label class="text-sm text-zinc-400">Senha</label>
-      <input id="senha" type="password" autocomplete="current-password" class="w-full mt-1 mb-5 bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-orange-500" placeholder="••••••••" />
-
-      <button onclick="entrar()" class="w-full bg-orange-500 hover:bg-orange-400 text-black font-bold rounded-xl py-3">Entrar</button>
-      <button onclick="criarConta()" class="w-full mt-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl py-3">Criar meu acesso</button>
-      <p id="authMsg" class="text-sm text-zinc-400 mt-4 text-center"></p>
+<main id="appView" class="hidden max-w-[1950px] mx-auto p-4 md:p-6">
+  <header class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
+    <div><h1 class="text-3xl md:text-5xl font-bold">🧡 UP Manager</h1><p class="text-zinc-400 mt-2">Clientes, retornos, planos e comissão sincronizados no Supabase</p></div>
+    <div class="flex flex-wrap gap-2">
+      <button id="btnClientes" onclick="abrirTela('clientes')" class="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold">👥 Clientes</button>
+      <button id="btnComissoes" onclick="abrirTela('comissoes')" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700">💰 Comissões</button>
+      <label class="px-4 py-2 rounded-xl bg-zinc-800 font-semibold cursor-pointer hover:bg-zinc-700">📥 Importar Excel<input id="arquivo" type="file" accept=".xlsx,.xls,.csv" class="hidden" onchange="importarPlanilha(event)" /></label>
+      <button onclick="recarregar()" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700">↻ Atualizar</button>
+      <button onclick="sair()" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700">Sair</button>
     </div>
+  </header>
+
+  <section class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-6">
+    <div class="cardResumo"><span>Clientes</span><strong id="totalClientes">0</strong></div>
+    <div class="cardResumo"><span>Primeiro contato</span><strong id="totalPrimeiroContato">0</strong></div>
+    <div class="cardResumo"><span>Aceitos</span><strong id="totalAceitos">0</strong></div>
+    <div class="cardResumo"><span>Retornos hoje</span><strong id="totalRetornos">0</strong></div>
+    <div class="cardResumo"><span>Conversão</span><strong id="conversao">0%</strong></div>
+    <div class="cardResumo"><span>Comissão do mês</span><strong id="comissaoMesTopo">R$ 0,00</strong></div>
   </section>
 
-  <main id="appView" class="hidden max-w-[1900px] mx-auto p-4 md:p-6">
-    <header class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
-      <div>
-        <h1 class="text-3xl md:text-5xl font-bold">🧡 UP Manager</h1>
-        <p class="text-zinc-400 mt-2">Clientes, retornos, planos e comissão sincronizados no Supabase</p>
-      </div>
-      <div class="flex flex-wrap gap-2">
-        <label class="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold cursor-pointer hover:bg-orange-400">
-          📥 Importar Excel
-          <input id="arquivo" type="file" accept=".xlsx,.xls,.csv" class="hidden" onchange="importarPlanilha(event)" />
-        </label>
-        <button onclick="recarregar()" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700">↻ Atualizar</button>
-        <button onclick="sair()" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700">Sair</button>
-      </div>
-    </header>
-
-    <section class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-6">
-      <div class="cardResumo"><span>Clientes</span><strong id="totalClientes">0</strong></div>
-      <div class="cardResumo"><span>Aceitos</span><strong id="totalAceitos">0</strong></div>
-      <div class="cardResumo"><span>Retornos hoje</span><strong id="totalRetornos">0</strong></div>
-      <div class="cardResumo"><span>Pensando</span><strong id="totalPensando">0</strong></div>
-      <div class="cardResumo"><span>Conversão</span><strong id="conversao">0%</strong></div>
-      <div class="cardResumo"><span>Comissão</span><strong id="comissaoTotal">R$ 0,00</strong></div>
-    </section>
-
+  <section id="telaClientes">
     <section class="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-3 md:p-4 mb-6">
       <div class="grid md:grid-cols-[1fr_auto_auto] gap-3">
-        <input id="busca" oninput="renderizar()" placeholder="Buscar cliente ou telefone..." class="bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-orange-500" />
-        <select id="filtroStatus" onchange="renderizar()" class="bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3">
-          <option value="Todos">Todos os status</option>
-          <option value="Novo">Novos</option>
-          <option value="Aceitou">Aceitou</option>
-          <option value="Recusou">Recusou</option>
-          <option value="Não atendeu">Não atendeu</option>
-          <option value="Pensando">Pensando</option>
+        <input id="busca" oninput="renderizarClientes()" placeholder="Buscar cliente ou telefone..." class="bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-orange-500" />
+        <select id="filtroStatus" onchange="renderizarClientes()" class="bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3">
+          <option value="Todos">Todos os status</option><option value="Novo">Novos</option><option value="Primeiro contato">Primeiro contato</option><option value="Pensando">Pensando</option><option value="Não atendeu">Não atendeu</option><option value="Recusou">Recusou</option><option value="Aceitou">Aceitou</option>
         </select>
         <button id="btnRetornos" onclick="mostrarSomenteRetornos()" class="px-4 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">📅 Retornos de hoje</button>
       </div>
     </section>
 
     <div id="loading" class="hidden text-center py-12 text-zinc-400">Carregando clientes...</div>
+    <section id="avisoVazio" class="hidden text-center py-16 text-zinc-400 bg-zinc-900/50 rounded-2xl border border-zinc-800"><p class="text-xl">Nenhum cliente no banco.</p></section>
 
-    <section id="avisoVazio" class="hidden text-center py-16 text-zinc-400 bg-zinc-900/50 rounded-2xl border border-zinc-800">
-      <p class="text-xl mb-2">Nenhum cliente no banco.</p>
-      <p>Use “Importar Excel” para carregar sua base com segurança.</p>
-    </section>
-
-    <section id="kanban" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+    <section id="kanban" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4">
       <div class="coluna"><h2>🔵 Novos <span id="countNovo">0</span></h2><div id="novo"></div></div>
+      <div class="coluna"><h2>🟣 Primeiro contato <span id="countPrimeiroContato">0</span></h2><div id="primeiroContato"></div></div>
       <div class="coluna"><h2>🟡 Pensando <span id="countPensando">0</span></h2><div id="pensando"></div></div>
       <div class="coluna"><h2>⚪ Não atendeu <span id="countNaoAtendeu">0</span></h2><div id="naoAtendeu"></div></div>
       <div class="coluna"><h2>🔴 Recusou <span id="countRecusou">0</span></h2><div id="recusou"></div></div>
       <div class="coluna"><h2>🟢 Aceitou <span id="countAceitou">0</span></h2><div id="aceitou"></div></div>
     </section>
+  </section>
 
-    <p class="text-xs text-zinc-600 text-center mt-8">Os dados dos clientes ficam no Supabase protegido por login; o GitHub contém apenas o código do sistema.</p>
-  </main>
+  <section id="telaComissoes" class="hidden">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 md:p-6 mb-5">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div><h2 class="text-2xl font-bold">💰 Comissões mensais</h2><p class="text-zinc-400 text-sm mt-1">Calculadas pela data em que cada UP foi aceito.</p></div>
+        <input id="mesComissao" type="month" onchange="renderizarComissoes()" class="bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3" />
+      </div>
+    </div>
+    <div class="grid md:grid-cols-3 gap-4 mb-5">
+      <div class="cardResumo"><span>UPs aceitos no mês</span><strong id="upsMes">0</strong></div>
+      <div class="cardResumo"><span>Comissão no mês</span><strong id="valorMes">R$ 0,00</strong></div>
+      <div class="cardResumo"><span>Média por UP</span><strong id="mediaMes">R$ 0,00</strong></div>
+    </div>
+    <div class="grid xl:grid-cols-[1.4fr_.8fr] gap-5">
+      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
+        <div class="p-4 border-b border-zinc-800 font-semibold">Fechamentos do mês</div>
+        <div class="overflow-x-auto"><table class="w-full text-sm"><thead class="text-zinc-400 bg-zinc-950/60"><tr><th class="text-left p-3">Cliente</th><th class="text-left p-3">Plano</th><th class="text-left p-3">Data</th><th class="text-right p-3">Comissão</th></tr></thead><tbody id="tabelaComissoes"></tbody></table></div>
+      </div>
+      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
+        <div class="p-4 border-b border-zinc-800 font-semibold">Histórico mensal</div><div id="historicoComissoes" class="p-3 space-y-2"></div>
+      </div>
+    </div>
+  </section>
 
-  <div id="toast" class="fixed bottom-5 right-5 hidden bg-zinc-800 border border-zinc-700 px-4 py-3 rounded-xl shadow-xl max-w-sm z-50"></div>
+  <p class="text-xs text-zinc-600 text-center mt-8">Os dados dos clientes ficam no Supabase protegido por login; o GitHub contém apenas o código do sistema.</p>
+</main>
+<div id="toast" class="fixed bottom-5 right-5 hidden bg-zinc-800 border border-zinc-700 px-4 py-3 rounded-xl shadow-xl z-50"></div>
 
 <style>
-  .cardResumo{background:#18181b;border:1px solid #27272a;border-radius:1rem;padding:1rem;display:flex;flex-direction:column;gap:.35rem}.cardResumo span{color:#a1a1aa;font-size:.8rem}.cardResumo strong{font-size:1.7rem}.coluna{background:rgba(24,24,27,.7);border:1px solid #27272a;border-radius:1.25rem;padding:.8rem;min-height:260px}.coluna h2{font-weight:700;display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}.coluna h2 span{font-size:.75rem;background:#27272a;padding:.25rem .55rem;border-radius:999px}.cliente{background:#09090b;border:1px solid #27272a;border-radius:1rem;padding:.9rem;margin-bottom:.7rem}.cliente:hover{border-color:#52525b}.badge{font-size:.7rem;padding:.22rem .45rem;border-radius:999px;background:#27272a;color:#d4d4d8}.btn{font-size:.72rem;padding:.42rem .55rem;border-radius:.65rem;background:#27272a}.btn:hover{background:#3f3f46}.retornoVencido{border-color:#f97316;box-shadow:0 0 0 1px rgba(249,115,22,.25)}
+.cardResumo{background:#18181b;border:1px solid #27272a;border-radius:1rem;padding:1rem;display:flex;flex-direction:column;gap:.35rem}.cardResumo span{color:#a1a1aa;font-size:.8rem}.cardResumo strong{font-size:1.7rem}.coluna{background:rgba(24,24,27,.7);border:1px solid #27272a;border-radius:1.25rem;padding:.8rem;min-height:260px;min-width:0}.coluna h2{font-weight:700;display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}.coluna h2 span{font-size:.75rem;background:#27272a;padding:.25rem .55rem;border-radius:999px}.cliente{background:#09090b;border:1px solid #27272a;border-radius:1rem;padding:.9rem;margin-bottom:.7rem}.cliente:hover{border-color:#52525b}.badge{font-size:.7rem;padding:.22rem .45rem;border-radius:999px;background:#27272a}.btn{font-size:.7rem;padding:.42rem .52rem;border-radius:.65rem;background:#27272a}.btn:hover{background:#3f3f46}.retornoVencido{border-color:#f97316;box-shadow:0 0 0 1px rgba(249,115,22,.25)}
 </style>
 
 <script>
 const SUPABASE_URL='https://ezqvnsafcqephqxtqzmq.supabase.co';
 const SUPABASE_KEY='sb_publishable_3gCx0RlmKUjWI7D1H5ET5w_vgUBGwjy';
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let clientes=[];
-let filtroRetorno=false;
-const LIMITE_VISUAL=80;
-
+let clientes=[];let filtroRetorno=false;const LIMITE_VISUAL=60;
 const hojeISO=()=>new Date().toISOString().slice(0,10);
+const mesAtual=()=>hojeISO().slice(0,7);
 function moeda(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),2600)}
-function escapeHtml(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),2400)}
+function escapeHtml(s){return String(s??'').replace(/[&<>'\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[c]))}
 function telefoneLimpo(t){return String(t||'').replace(/\D/g,'')}
-function whatsapp(t){let n=telefoneLimpo(t);if(n.length===10||n.length===11)n='55'+n;window.open('https://wa.me/'+n,'_blank')}
 function copiar(t){navigator.clipboard.writeText(String(t||''));toast('Número copiado 🧡')}
 function normalizarPlano(v){const s=String(v||'').toUpperCase().replace(/\s+/g,'').replace('MBPS','MB').replace('GBPS','GB');if(s==='1GB'||s==='1000MB')return '1Gb';if(s.includes('800'))return '800Mb';if(s.includes('600'))return '600Mb';if(s.includes('500'))return '500Mb';if(s.includes('400'))return '400Mb';return s?String(v):'400Mb'}
-function normalizarStatus(v){const s=String(v||'').trim().toLowerCase();if(!s||s==='novo')return null;if(s.includes('aceit')||s.includes('fech'))return 'Aceitou';if(s.includes('recus'))return 'Recusou';if(s.includes('não atendeu')||s.includes('nao atendeu'))return 'Não atendeu';if(s.includes('pens'))return 'Pensando';return null}
+function normalizarStatus(v){const s=String(v||'').trim().toLowerCase();if(!s||s==='novo')return null;if(s.includes('primeiro'))return 'Primeiro contato';if(s.includes('aceit')||s.includes('fech'))return 'Aceitou';if(s.includes('recus'))return 'Recusou';if(s.includes('não atendeu')||s.includes('nao atendeu'))return 'Não atendeu';if(s.includes('pens'))return 'Pensando';return null}
 
-async function entrar(){
-  const email=document.getElementById('email').value.trim();
-  const password=document.getElementById('senha').value;
-  const msg=document.getElementById('authMsg');
-  msg.textContent='Entrando...';
-  const {error}=await db.auth.signInWithPassword({email,password});
-  if(error){msg.textContent='Não foi possível entrar: '+error.message;return}
-  msg.textContent='';
-}
-
-async function criarConta(){
-  const email=document.getElementById('email').value.trim();
-  const password=document.getElementById('senha').value;
-  const msg=document.getElementById('authMsg');
-  if(password.length<6){msg.textContent='Use uma senha com pelo menos 6 caracteres.';return}
-  msg.textContent='Criando acesso...';
-  const {data,error}=await db.auth.signUp({email,password});
-  if(error){msg.textContent='Não foi possível criar: '+error.message;return}
-  msg.textContent=data.session?'Acesso criado. Entrando...':'Acesso criado. Confira seu e-mail para confirmar a conta e depois volte para entrar.';
-}
-
+async function entrar(){const email=document.getElementById('email').value.trim(),password=document.getElementById('senha').value,msg=document.getElementById('authMsg');msg.textContent='Entrando...';const {error}=await db.auth.signInWithPassword({email,password});msg.textContent=error?'Não foi possível entrar: '+error.message:''}
+async function criarConta(){const email=document.getElementById('email').value.trim(),password=document.getElementById('senha').value,msg=document.getElementById('authMsg');if(password.length<6){msg.textContent='Use uma senha com pelo menos 6 caracteres.';return}const {data,error}=await db.auth.signUp({email,password});msg.textContent=error?'Não foi possível criar: '+error.message:(data.session?'Acesso criado.':'Confira seu e-mail para confirmar a conta.')}
 async function sair(){await db.auth.signOut()}
 
-db.auth.onAuthStateChange(async (_event,session)=>{
-  const autenticado=!!session;
-  document.getElementById('authView').classList.toggle('hidden',autenticado);
-  document.getElementById('appView').classList.toggle('hidden',!autenticado);
-  if(autenticado) await carregarClientes();
-});
+db.auth.onAuthStateChange(async(_e,session)=>{const ok=!!session;document.getElementById('authView').classList.toggle('hidden',ok);document.getElementById('appView').classList.toggle('hidden',!ok);if(ok)await carregarClientes()});
 
-async function carregarClientes(){
-  document.getElementById('loading').classList.remove('hidden');
-  clientes=[];
-  let inicio=0;
-  const pagina=1000;
-  while(true){
-    const {data,error}=await db.from('clientes_up').select('*').order('cliente',{ascending:true}).range(inicio,inicio+pagina-1);
-    if(error){document.getElementById('loading').classList.add('hidden');toast('Erro ao carregar: '+error.message);return}
-    clientes.push(...(data||[]));
-    if(!data||data.length<pagina)break;
-    inicio+=pagina;
-  }
-  document.getElementById('loading').classList.add('hidden');
-  renderizar();
-}
+async function carregarClientes(){document.getElementById('loading').classList.remove('hidden');clientes=[];let inicio=0,pagina=1000;while(true){const {data,error}=await db.from('clientes_up').select('*').order('cliente',{ascending:true}).range(inicio,inicio+pagina-1);if(error){toast('Erro ao carregar: '+error.message);break}clientes.push(...(data||[]));if(!data||data.length<pagina)break;inicio+=pagina}document.getElementById('loading').classList.add('hidden');atualizarResumo();renderizarClientes();renderizarComissoes()}
 async function recarregar(){await carregarClientes();toast('Dados atualizados')}
-
 function substituirCliente(novo){const i=clientes.findIndex(c=>c.id===novo.id);if(i>=0)clientes[i]=novo;else clientes.push(novo)}
+async function atualizarStatus(id,status){const {data,error}=await db.from('clientes_up').update({status}).eq('id',id).select().single();if(error){toast('Erro: '+error.message);return}substituirCliente(data);atualizarResumo();renderizarClientes();renderizarComissoes()}
+async function atualizarPlano(id,plano){const {data,error}=await db.from('clientes_up').update({plano_fechado:plano}).eq('id',id).select().single();if(error){toast('Erro: '+error.message);return}substituirCliente(data);atualizarResumo();renderizarClientes();renderizarComissoes()}
+async function atualizarObs(id,obs){const {error}=await db.from('clientes_up').update({observacao:obs}).eq('id',id);if(error)toast('Erro ao salvar observação');else{const c=clientes.find(x=>x.id===id);if(c)c.observacao=obs}}
 
-async function atualizarStatus(id,status){
-  const {data,error}=await db.from('clientes_up').update({status,data_contato:hojeISO()}).eq('id',id).select().single();
-  if(error){toast('Erro: '+error.message);return}
-  substituirCliente(data);renderizar();
-}
-async function atualizarPlano(id,plano){
-  const {data,error}=await db.from('clientes_up').update({plano_fechado:plano}).eq('id',id).select().single();
-  if(error){toast('Erro: '+error.message);return}
-  substituirCliente(data);renderizar();
-}
-async function atualizarObs(id,obs){
-  const {error}=await db.from('clientes_up').update({observacao:obs}).eq('id',id);
-  if(error)toast('Erro ao salvar observação: '+error.message);else{const c=clientes.find(x=>x.id===id);if(c)c.observacao=obs}
-}
+function card(c){const status=c.status||'Novo',vencido=status==='Não atendeu'&&c.proximo_contato&&c.proximo_contato<=hojeISO(),tel=c.telefone_celular||c.telefone_residencial||'',sug=c.plano_sugerido||'-',esc=c.plano_fechado||sug;return `<article class="cliente ${vencido?'retornoVencido':''}"><div class="flex justify-between gap-2"><div><h3 class="font-semibold text-sm">${escapeHtml(c.cliente)}</h3><p class="text-zinc-400 text-xs mt-1">📞 ${escapeHtml(tel||'-')}</p></div>${vencido?'<span class="badge text-orange-300">Retorno hoje</span>':''}</div><div class="grid grid-cols-2 gap-2 mt-3 text-xs"><div><span class="text-zinc-500">Atual</span><p>${escapeHtml(c.plano_atual||'-')}</p></div><div><span class="text-zinc-500">Sugestão</span><p>${escapeHtml(sug)}</p></div><div><span class="text-zinc-500">Novo valor</span><p>${moeda(c.valor_novo)}</p></div><div><span class="text-zinc-500">Comissão</span><p class="text-green-400">${moeda(c.comissao)}</p></div></div><select onchange="atualizarPlano('${c.id}',this.value)" class="mt-3 w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2 text-xs">${['500Mb','600Mb','800Mb','1Gb'].map(p=>`<option value="${p}" ${esc===p?'selected':''}>${p}</option>`).join('')}</select>${c.proximo_contato?`<p class="text-xs mt-2 text-orange-300">📅 Rechamar: ${new Date(c.proximo_contato+'T12:00:00').toLocaleDateString('pt-BR')}</p>`:''}<textarea onchange="atualizarObs('${c.id}',this.value)" placeholder="Observação..." class="mt-2 w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-xs resize-none">${escapeHtml(c.observacao||'')}</textarea><div class="flex flex-wrap gap-1.5 mt-2"><button class="btn" onclick="copiar('${escapeHtml(tel)}')">📋 Copiar</button><button class="btn text-purple-300" onclick="atualizarStatus('${c.id}','Primeiro contato')">Primeiro contato</button><button class="btn text-yellow-300" onclick="atualizarStatus('${c.id}','Pensando')">Pensando</button><button class="btn text-zinc-300" onclick="atualizarStatus('${c.id}','Não atendeu')">Não atendeu</button><button class="btn text-red-300" onclick="atualizarStatus('${c.id}','Recusou')">Recusou</button><button class="btn text-green-300" onclick="atualizarStatus('${c.id}','Aceitou')">Aceitou</button></div></article>`}
 
-function card(c){
-  const status=c.status||'Novo';
-  const vencido=status==='Não atendeu'&&c.proximo_contato&&c.proximo_contato<=hojeISO();
-  const tel=c.telefone_celular||c.telefone_residencial||'';
-  const sugestao=c.plano_sugerido||'-';
-  const escolhido=c.plano_fechado||sugestao;
-  return `<article class="cliente ${vencido?'retornoVencido':''}">
-    <div class="flex justify-between gap-2 items-start">
-      <div><h3 class="font-semibold text-sm">${escapeHtml(c.cliente)}</h3><p class="text-zinc-400 text-xs mt-1">📞 ${escapeHtml(tel||'-')}</p></div>
-      ${vencido?'<span class="badge text-orange-300">Retorno hoje</span>':''}
-    </div>
-    <div class="grid grid-cols-2 gap-2 mt-3 text-xs">
-      <div><span class="text-zinc-500">Atual</span><p>${escapeHtml(c.plano_atual||'-')}</p></div>
-      <div><span class="text-zinc-500">Sugestão</span><p>${escapeHtml(sugestao)}</p></div>
-      <div><span class="text-zinc-500">Novo valor</span><p>${moeda(c.valor_novo)}</p></div>
-      <div><span class="text-zinc-500">Comissão</span><p class="text-green-400">${moeda(c.comissao)}</p></div>
-    </div>
-    <select onchange="atualizarPlano('${c.id}',this.value)" class="mt-3 w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2 text-xs">
-      ${['500Mb','600Mb','800Mb','1Gb'].map(p=>`<option value="${p}" ${escolhido===p?'selected':''}>${p}</option>`).join('')}
-    </select>
-    ${c.proximo_contato?`<p class="text-xs mt-2 text-orange-300">📅 Rechamar: ${new Date(c.proximo_contato+'T12:00:00').toLocaleDateString('pt-BR')}</p>`:''}
-    <textarea onchange="atualizarObs('${c.id}',this.value)" placeholder="Observação..." class="mt-2 w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-xs resize-none">${escapeHtml(c.observacao||'')}</textarea>
-    <div class="flex flex-wrap gap-1.5 mt-2">
-      <button class="btn" onclick="copiar('${escapeHtml(tel)}')">📋 Copiar</button>
-      <button class="btn" onclick="whatsapp('${escapeHtml(tel)}')">💬 WhatsApp</button>
-      <button class="btn text-yellow-300" onclick="atualizarStatus('${c.id}','Pensando')">Pensando</button>
-      <button class="btn text-zinc-300" onclick="atualizarStatus('${c.id}','Não atendeu')">Não atendeu</button>
-      <button class="btn text-red-300" onclick="atualizarStatus('${c.id}','Recusou')">Recusou</button>
-      <button class="btn text-green-300" onclick="atualizarStatus('${c.id}','Aceitou')">Aceitou</button>
-    </div>
-  </article>`;
-}
+function renderizarClientes(){const busca=(document.getElementById('busca').value||'').toLowerCase(),fs=document.getElementById('filtroStatus').value;const containers={Novo:'novo','Primeiro contato':'primeiroContato',Pensando:'pensando','Não atendeu':'naoAtendeu',Recusou:'recusou',Aceitou:'aceitou'};Object.values(containers).forEach(id=>document.getElementById(id).innerHTML='');const lista=clientes.filter(c=>{const tel=c.telefone_celular||c.telefone_residencial||'',status=c.status||'Novo';return (c.cliente+' '+tel).toLowerCase().includes(busca)&&(fs==='Todos'||status===fs)&&(!filtroRetorno||(status==='Não atendeu'&&c.proximo_contato&&c.proximo_contato<=hojeISO()))});const counts={Novo:0,'Primeiro contato':0,Pensando:0,'Não atendeu':0,Recusou:0,Aceitou:0};lista.forEach(c=>counts[c.status||'Novo']++);Object.entries(containers).forEach(([s,id])=>{const subset=lista.filter(c=>(c.status||'Novo')===s).slice(0,LIMITE_VISUAL);subset.forEach(c=>document.getElementById(id).insertAdjacentHTML('beforeend',card(c)));if(counts[s]>LIMITE_VISUAL)document.getElementById(id).insertAdjacentHTML('beforeend',`<p class="text-xs text-zinc-500 text-center py-3">Mostrando ${LIMITE_VISUAL} de ${counts[s]}. Use a busca.</p>`)});document.getElementById('countNovo').textContent=counts.Novo;document.getElementById('countPrimeiroContato').textContent=counts['Primeiro contato'];document.getElementById('countPensando').textContent=counts.Pensando;document.getElementById('countNaoAtendeu').textContent=counts['Não atendeu'];document.getElementById('countRecusou').textContent=counts.Recusou;document.getElementById('countAceitou').textContent=counts.Aceitou;document.getElementById('kanban').classList.toggle('hidden',clientes.length===0);document.getElementById('avisoVazio').classList.toggle('hidden',clientes.length!==0)}
 
-function renderizar(){
-  const busca=(document.getElementById('busca').value||'').toLowerCase();
-  const fs=document.getElementById('filtroStatus').value;
-  const containers={Novo:'novo',Pensando:'pensando','Não atendeu':'naoAtendeu',Recusou:'recusou',Aceitou:'aceitou'};
-  Object.values(containers).forEach(id=>document.getElementById(id).innerHTML='');
-  const lista=clientes.filter(c=>{
-    const tel=(c.telefone_celular||c.telefone_residencial||'');
-    const txt=(c.cliente+' '+tel).toLowerCase();
-    const status=c.status||'Novo';
-    const okBusca=txt.includes(busca);
-    const okStatus=fs==='Todos'||status===fs;
-    const okRetorno=!filtroRetorno||(status==='Não atendeu'&&c.proximo_contato&&c.proximo_contato<=hojeISO());
-    return okBusca&&okStatus&&okRetorno;
-  });
+function atualizarResumo(){const aceitos=clientes.filter(c=>c.status==='Aceitou'),trabalhados=clientes.filter(c=>!!c.status),retornos=clientes.filter(c=>c.status==='Não atendeu'&&c.proximo_contato&&c.proximo_contato<=hojeISO()),mes=mesAtual(),aceitosMes=aceitos.filter(c=>(c.aceito_em||'').slice(0,7)===mes);document.getElementById('totalClientes').textContent=clientes.length;document.getElementById('totalPrimeiroContato').textContent=clientes.filter(c=>c.status==='Primeiro contato').length;document.getElementById('totalAceitos').textContent=aceitos.length;document.getElementById('totalRetornos').textContent=retornos.length;document.getElementById('conversao').textContent=(trabalhados.length?aceitos.length/trabalhados.length*100:0).toFixed(1)+'%';document.getElementById('comissaoMesTopo').textContent=moeda(aceitosMes.reduce((s,c)=>s+Number(c.comissao||0),0))}
 
-  const counts={Novo:0,Pensando:0,'Não atendeu':0,Recusou:0,Aceitou:0};
-  lista.forEach(c=>{const s=c.status||'Novo';if(counts[s]!==undefined)counts[s]++});
-  Object.entries(containers).forEach(([status,id])=>{
-    const subset=lista.filter(c=>(c.status||'Novo')===status).slice(0,LIMITE_VISUAL);
-    subset.forEach(c=>document.getElementById(id).insertAdjacentHTML('beforeend',card(c)));
-    if(counts[status]>LIMITE_VISUAL)document.getElementById(id).insertAdjacentHTML('beforeend',`<p class="text-xs text-zinc-500 text-center py-3">Mostrando ${LIMITE_VISUAL} de ${counts[status]}. Use a busca para localizar outros.</p>`);
-  });
+function abrirTela(tela){const clientesAtivo=tela==='clientes';document.getElementById('telaClientes').classList.toggle('hidden',!clientesAtivo);document.getElementById('telaComissoes').classList.toggle('hidden',clientesAtivo);document.getElementById('btnClientes').className='px-4 py-2 rounded-xl '+(clientesAtivo?'bg-orange-500 text-black font-semibold':'bg-zinc-800 hover:bg-zinc-700');document.getElementById('btnComissoes').className='px-4 py-2 rounded-xl '+(!clientesAtivo?'bg-orange-500 text-black font-semibold':'bg-zinc-800 hover:bg-zinc-700');if(!clientesAtivo)renderizarComissoes()}
+function mostrarSomenteRetornos(){filtroRetorno=!filtroRetorno;document.getElementById('filtroStatus').value='Todos';document.getElementById('btnRetornos').classList.toggle('bg-orange-500',filtroRetorno);document.getElementById('btnRetornos').classList.toggle('text-black',filtroRetorno);renderizarClientes()}
 
-  document.getElementById('countNovo').textContent=counts.Novo;
-  document.getElementById('countPensando').textContent=counts.Pensando;
-  document.getElementById('countNaoAtendeu').textContent=counts['Não atendeu'];
-  document.getElementById('countRecusou').textContent=counts.Recusou;
-  document.getElementById('countAceitou').textContent=counts.Aceitou;
+function renderizarComissoes(){const input=document.getElementById('mesComissao');if(!input.value)input.value=mesAtual();const mes=input.value,aceitos=clientes.filter(c=>c.status==='Aceitou'&&c.aceito_em),doMes=aceitos.filter(c=>c.aceito_em.slice(0,7)===mes).sort((a,b)=>new Date(b.aceito_em)-new Date(a.aceito_em)),total=doMes.reduce((s,c)=>s+Number(c.comissao||0),0);document.getElementById('upsMes').textContent=doMes.length;document.getElementById('valorMes').textContent=moeda(total);document.getElementById('mediaMes').textContent=moeda(doMes.length?total/doMes.length:0);document.getElementById('tabelaComissoes').innerHTML=doMes.length?doMes.map(c=>`<tr class="border-t border-zinc-800"><td class="p-3">${escapeHtml(c.cliente)}</td><td class="p-3">${escapeHtml(c.plano_fechado||c.plano_sugerido||'-')}</td><td class="p-3">${new Date(c.aceito_em).toLocaleDateString('pt-BR')}</td><td class="p-3 text-right text-green-400 font-semibold">${moeda(c.comissao)}</td></tr>`).join(''):'<tr><td colspan="4" class="p-6 text-center text-zinc-500">Nenhum UP aceito neste mês.</td></tr>';const mapa={};aceitos.forEach(c=>{const m=c.aceito_em.slice(0,7);if(!mapa[m])mapa[m]={qtd:0,total:0};mapa[m].qtd++;mapa[m].total+=Number(c.comissao||0)});document.getElementById('historicoComissoes').innerHTML=Object.keys(mapa).sort().reverse().map(m=>{const [ano,mesN]=m.split('-'),nome=new Date(Number(ano),Number(mesN)-1,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});return `<button onclick="document.getElementById('mesComissao').value='${m}';renderizarComissoes()" class="w-full flex justify-between items-center bg-zinc-950 hover:bg-zinc-800 rounded-xl p-3 text-left"><div><p class="font-medium capitalize">${nome}</p><p class="text-xs text-zinc-500">${mapa[m].qtd} UP${mapa[m].qtd===1?'':'s'}</p></div><strong class="text-green-400">${moeda(mapa[m].total)}</strong></button>`}).join('')||'<p class="text-zinc-500 text-sm p-3">O histórico aparecerá após o primeiro aceite.</p>'}
 
-  const aceitos=clientes.filter(c=>c.status==='Aceitou');
-  const trabalhados=clientes.filter(c=>!!c.status);
-  const retornos=clientes.filter(c=>c.status==='Não atendeu'&&c.proximo_contato&&c.proximo_contato<=hojeISO());
-  document.getElementById('totalClientes').textContent=clientes.length;
-  document.getElementById('totalAceitos').textContent=aceitos.length;
-  document.getElementById('totalRetornos').textContent=retornos.length;
-  document.getElementById('totalPensando').textContent=clientes.filter(c=>c.status==='Pensando').length;
-  document.getElementById('conversao').textContent=(trabalhados.length?aceitos.length/trabalhados.length*100:0).toFixed(1)+'%';
-  document.getElementById('comissaoTotal').textContent=moeda(aceitos.reduce((s,c)=>s+Number(c.comissao||0),0));
-  document.getElementById('kanban').classList.toggle('hidden',clientes.length===0);
-  document.getElementById('avisoVazio').classList.toggle('hidden',clientes.length!==0);
-}
+function acharColuna(headers,possiveis){const norm=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');const hs=headers.map(norm);for(const p of possiveis){const i=hs.indexOf(norm(p));if(i>=0)return i}return -1}
+function normalizarDataExcel(v){if(!v)return null;if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`}const s=String(v).trim(),br=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(br)return `${br[3]}-${br[2].padStart(2,'0')}-${br[1].padStart(2,'0')}`;return /^\d{4}-\d{2}-\d{2}/.test(s)?s.slice(0,10):null}
+async function importarPlanilha(event){const file=event.target.files[0];if(!file)return;toast('Lendo planilha...');const data=await file.arrayBuffer(),workbook=XLSX.read(data,{type:'array'}),sheetName=workbook.SheetNames.includes('Base_AppSheet')?'Base_AppSheet':workbook.SheetNames[0],rows=XLSX.utils.sheet_to_json(workbook.Sheets[sheetName],{header:1,defval:null});if(rows.length<2){toast('A planilha está vazia.');return}const h=rows[0],ci=acharColuna(h,['ID']),cn=acharColuna(h,['Cliente','Nome']),cr=acharColuna(h,['Telefone residencial','Telefone']),cc=acharColuna(h,['Telefone celular','Celular']),cd=acharColuna(h,['Data do contato','Data do contato / UP']),cs=acharColuna(h,['Status']),cpa=acharColuna(h,['Plano Atual']),cps=acharColuna(h,['Plano Sugerido']),cpf=acharColuna(h,['Plano Fechado']),co=acharColuna(h,['Observação','Observacao']);if(cn<0){toast('Não encontrei a coluna Cliente.');return}const importados=[];for(let i=1;i<rows.length;i++){const r=rows[i];if(!r||!r[cn])continue;const telCel=cc>=0?r[cc]:null,telRes=cr>=0?r[cr]:null,idBase=ci>=0&&r[ci]?String(r[ci]):`AUTO-${i}-${telefoneLimpo(telCel||telRes||r[cn]).slice(-11)}`;importados.push({external_id:idBase,cliente:String(r[cn]),telefone_residencial:telRes?String(telRes):null,telefone_celular:telCel?String(telCel):null,data_contato:cd>=0&&r[cd]?normalizarDataExcel(r[cd]):null,status:cs>=0?normalizarStatus(r[cs]):null,plano_atual:cpa>=0&&r[cpa]?normalizarPlano(r[cpa]):'400Mb',plano_sugerido:cps>=0&&r[cps]?normalizarPlano(r[cps]):null,plano_fechado:cpf>=0&&r[cpf]?normalizarPlano(r[cpf]):null,observacao:co>=0&&r[co]?String(r[co]):null})}if(!importados.length){toast('Nenhum cliente válido encontrado.');return}if(!confirm(`Importar ${importados.length} clientes? Registros com o mesmo ID serão atualizados.`))return;for(let i=0;i<importados.length;i+=200){toast(`Importando ${Math.min(i+200,importados.length)} de ${importados.length}...`);const {error}=await db.from('clientes_up').upsert(importados.slice(i,i+200),{onConflict:'external_id'});if(error){toast('Erro na importação: '+error.message);return}}event.target.value='';toast('Importação concluída 🧡');await carregarClientes()}
 
-function mostrarSomenteRetornos(){
-  filtroRetorno=!filtroRetorno;
-  document.getElementById('filtroStatus').value='Todos';
-  document.getElementById('btnRetornos').classList.toggle('bg-orange-500',filtroRetorno);
-  document.getElementById('btnRetornos').classList.toggle('text-black',filtroRetorno);
-  renderizar();
-}
-
-function acharColuna(headers,possiveis){
-  const norm=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
-  const hs=headers.map(norm);for(const p of possiveis){const i=hs.indexOf(norm(p));if(i>=0)return i}return -1;
-}
-
-async function importarPlanilha(event){
-  const file=event.target.files[0];if(!file)return;
-  toast('Lendo planilha...');
-  const data=await file.arrayBuffer();
-  const workbook=XLSX.read(data,{type:'array'});
-  const sheetName=workbook.SheetNames.includes('Base_AppSheet')?'Base_AppSheet':workbook.SheetNames[0];
-  const rows=XLSX.utils.sheet_to_json(workbook.Sheets[sheetName],{header:1,defval:null});
-  if(rows.length<2){toast('A planilha está vazia.');return}
-
-  const h=rows[0];
-  const ci=acharColuna(h,['ID']);
-  const cn=acharColuna(h,['Cliente','Nome']);
-  const cr=acharColuna(h,['Telefone residencial','Telefone']);
-  const cc=acharColuna(h,['Telefone celular','Celular']);
-  const cd=acharColuna(h,['Data do contato','Data do contato / UP']);
-  const cs=acharColuna(h,['Status']);
-  const cpa=acharColuna(h,['Plano Atual']);
-  const cps=acharColuna(h,['Plano Sugerido']);
-  const cpf=acharColuna(h,['Plano Fechado']);
-  const co=acharColuna(h,['Observação','Observacao']);
-  if(cn<0){toast('Não encontrei a coluna Cliente.');return}
-
-  const importados=[];
-  for(let i=1;i<rows.length;i++){
-    const r=rows[i];
-    if(!r||!r[cn])continue;
-    const telCel=cc>=0?r[cc]:null;
-    const telRes=cr>=0?r[cr]:null;
-    const idBase=ci>=0&&r[ci]?String(r[ci]):`AUTO-${i}-${telefoneLimpo(telCel||telRes||r[cn]).slice(-11)}`;
-    importados.push({
-      external_id:idBase,
-      cliente:String(r[cn]),
-      telefone_residencial:telRes?String(telRes):null,
-      telefone_celular:telCel?String(telCel):null,
-      data_contato:cd>=0&&r[cd]?normalizarDataExcel(r[cd]):null,
-      status:cs>=0?normalizarStatus(r[cs]):null,
-      plano_atual:cpa>=0&&r[cpa]?normalizarPlano(r[cpa]):'400Mb',
-      plano_sugerido:cps>=0&&r[cps]?normalizarPlano(r[cps]):null,
-      plano_fechado:cpf>=0&&r[cpf]?normalizarPlano(r[cpf]):null,
-      observacao:co>=0&&r[co]?String(r[co]):null
-    });
-  }
-
-  if(!importados.length){toast('Nenhum cliente válido encontrado.');return}
-  if(!confirm(`Importar ${importados.length} clientes para o banco? Registros com o mesmo ID serão atualizados.`))return;
-
-  const lote=200;
-  for(let i=0;i<importados.length;i+=lote){
-    toast(`Importando ${Math.min(i+lote,importados.length)} de ${importados.length}...`);
-    const {error}=await db.from('clientes_up').upsert(importados.slice(i,i+lote),{onConflict:'external_id'});
-    if(error){toast('Erro na importação: '+error.message);return}
-  }
-  event.target.value='';
-  toast('Importação concluída 🧡');
-  await carregarClientes();
-}
-
-function normalizarDataExcel(v){
-  if(!v)return null;
-  if(typeof v==='number'){
-    const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
-  }
-  const s=String(v).trim();
-  const br=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(br)return `${br[3]}-${br[2].padStart(2,'0')}-${br[1].padStart(2,'0')}`;
-  const iso=s.match(/^\d{4}-\d{2}-\d{2}/);if(iso)return s.slice(0,10);
-  return null;
-}
-
-(async()=>{
-  const {data}=await db.auth.getSession();
-  const autenticado=!!data.session;
-  document.getElementById('authView').classList.toggle('hidden',autenticado);
-  document.getElementById('appView').classList.toggle('hidden',!autenticado);
-  if(autenticado)await carregarClientes();
-})();
+(async()=>{document.getElementById('mesComissao').value=mesAtual();const {data}=await db.auth.getSession(),ok=!!data.session;document.getElementById('authView').classList.toggle('hidden',ok);document.getElementById('appView').classList.toggle('hidden',!ok);if(ok)await carregarClientes()})();
 </script>
 </body>
 </html>
