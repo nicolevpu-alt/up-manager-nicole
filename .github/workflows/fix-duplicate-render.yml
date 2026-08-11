@@ -1,0 +1,44 @@
+name: Fix duplicate render
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch index.html
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace(
+              "let clientes=[];let filtroRetorno=false;const LIMITE_VISUAL=60;",
+              "let clientes=[];let filtroRetorno=false;let carregandoClientes=false;const LIMITE_VISUAL=60;"
+          )
+          old = "async function carregarClientes(){document.getElementById('loading').classList.remove('hidden');clientes=[];let inicio=0,pagina=1000;while(true){const {data,error}=await db.from('clientes_up').select('*').order('cliente',{ascending:true}).range(inicio,inicio+pagina-1);if(error){toast('Erro ao carregar: '+error.message);break}clientes.push(...(data||[]));if(!data||data.length<pagina)break;inicio+=pagina}document.getElementById('loading').classList.add('hidden');atualizarResumo();renderizarClientes();renderizarComissoes()}"
+          new = "async function carregarClientes(){if(carregandoClientes)return;carregandoClientes=true;document.getElementById('loading').classList.remove('hidden');const carregados=[];let inicio=0,pagina=1000;try{while(true){const {data,error}=await db.from('clientes_up').select('*').order('cliente',{ascending:true}).range(inicio,inicio+pagina-1);if(error){toast('Erro ao carregar: '+error.message);return}carregados.push(...(data||[]));if(!data||data.length<pagina)break;inicio+=pagina}clientes=Array.from(new Map(carregados.map(c=>[c.id,c])).values());atualizarResumo();renderizarClientes();renderizarComissoes()}finally{carregandoClientes=false;document.getElementById('loading').classList.add('hidden')}}"
+          s = s.replace(old, new)
+          s = s.replace(
+              "function substituirCliente(novo){const i=clientes.findIndex(c=>c.id===novo.id);if(i>=0)clientes[i]=novo;else clientes.push(novo)}",
+              "function substituirCliente(novo){clientes=clientes.filter(c=>c.id!==novo.id);clientes.push(novo)}"
+          )
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit fix
+        run: |
+          if git diff --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Corrige duplicação de clientes na interface"
+          git push
