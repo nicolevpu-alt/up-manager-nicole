@@ -1,0 +1,93 @@
+name: Add Agenda Contatos
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/add-agenda-contatos.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Atualizar interface
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+
+          s=s.replace(
+            '<button id="btnClientes" onclick="abrirTela(\'clientes\')" class="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold">👥 Clientes</button>\n      <button id="btnComissoes"',
+            '<button id="btnClientes" onclick="abrirTela(\'clientes\')" class="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold">👥 Clientes</button>\n      <button id="btnAgenda" onclick="abrirTela(\'agenda\')" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700">📅 Agenda</button>\n      <button id="btnComissoes"'
+          )
+
+          s=s.replace('<span>Primeiro contato</span><strong id="totalPrimeiroContato">0</strong>', '<span>Em contato</span><strong id="totalPrimeiroContato">0</strong>')
+          s=s.replace('🟣 Primeiro contato <span id="countPrimeiroContato">0</span>', '🟣 Em contato <span id="countPrimeiroContato">0</span>')
+
+          s=s.replace(
+            '<option value="Primeiro contato">Primeiro contato</option>',
+            '<option value="Contato">Em contato</option><option value="Primeiro contato">1º contato</option><option value="Segundo contato">2º contato</option><option value="Terceiro contato">3º contato</option>'
+          )
+
+          s=s.replace(
+            '<button id="btnRetornos" onclick="mostrarSomenteRetornos()" class="px-4 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">📅 Retornos de hoje</button>',
+            '<button onclick="abrirTela(\'agenda\')" class="px-4 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">📅 Abrir agenda</button>'
+          )
+
+          agenda_html = '''\n  <section id="telaAgenda" class="hidden">\n    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 mb-5">\n      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">\n        <div><h2 class="text-2xl font-bold">📅 Agenda de retornos</h2><p class="text-zinc-400 text-sm mt-1">Os retornos são agendados automaticamente 3 dias após um “Não atendeu”.</p></div>\n        <div class="flex items-center gap-2">\n          <button onclick="mudarMesAgenda(-1)" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700">←</button>\n          <strong id="agendaTitulo" class="min-w-44 text-center capitalize"></strong>\n          <button onclick="mudarMesAgenda(1)" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700">→</button>\n          <button onclick="irHojeAgenda()" class="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold">Hoje</button>\n        </div>\n      </div>\n    </div>\n    <div class="grid md:grid-cols-3 gap-4 mb-5">\n      <div class="cardResumo"><span>Para hoje</span><strong id="agendaHoje">0</strong></div>\n      <div class="cardResumo"><span>Atrasados</span><strong id="agendaAtrasados">0</strong></div>\n      <div class="cardResumo"><span>Próximos 7 dias</span><strong id="agendaSemana">0</strong></div>\n    </div>\n    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 overflow-x-auto">\n      <div class="min-w-[980px]">\n        <div class="grid grid-cols-7 gap-2 mb-2 text-center text-xs text-zinc-500 font-semibold">\n          <div>SEG</div><div>TER</div><div>QUA</div><div>QUI</div><div>SEX</div><div>SÁB</div><div>DOM</div>\n        </div>\n        <div id="agendaGrid" class="grid grid-cols-7 gap-2"></div>\n      </div>\n    </div>\n    <div id="agendaAtrasadosLista" class="mt-5"></div>\n  </section>\n\n'''
+          s=s.replace('  <section id="telaComissoes" class="hidden">', agenda_html+'  <section id="telaComissoes" class="hidden">')
+
+          s=s.replace(
+            "let clientes=[];let filtroRetorno=false;let carregandoClientes=false;const LIMITE_VISUAL=60;",
+            "let clientes=[];let filtroRetorno=false;let carregandoClientes=false;let agendaMes=new Date().toISOString().slice(0,7);const LIMITE_VISUAL=60;"
+          )
+
+          s=s.replace(
+            "if(s.includes('primeiro'))return 'Primeiro contato';",
+            "if(s.includes('primeiro')||s.includes('1º'))return 'Primeiro contato';if(s.includes('segundo')||s.includes('2º'))return 'Segundo contato';if(s.includes('terceiro')||s.includes('3º'))return 'Terceiro contato';"
+          )
+
+          s=s.replace('atualizarResumo();renderizarClientes();renderizarComissoes()', 'atualizarResumo();renderizarClientes();renderizarAgenda();renderizarComissoes()')
+
+          helper = '''\nfunction statusEtapa(n){return n===1?'Primeiro contato':n===2?'Segundo contato':'Terceiro contato'}\nfunction proximaEtapa(c){return Math.min(Number(c.contato_etapa||0)+1,3)}\nfunction rotuloEtapa(n){return `${n}º contato`}\nasync function iniciarContato(id,n){await atualizarStatus(id,statusEtapa(n));toast(`${rotuloEtapa(n)} registrado`)}\nfunction botaoProximoContato(c){const etapa=Number(c.contato_etapa||0);if(etapa>=3)return '<span class="badge text-zinc-400">3 contatos realizados</span>';const prox=Math.max(1,etapa+1);return `<button class="btn text-purple-300" onclick="iniciarContato('${c.id}',${prox})">${rotuloEtapa(prox)}</button>`}\n'''
+          s=s.replace('\nfunction card(c){', helper+'\nfunction card(c){')
+          s=s.replace(
+            '<button class="btn text-purple-300" onclick="atualizarStatus(\'${c.id}\',\'Primeiro contato\')">Primeiro contato</button>',
+            '${botaoProximoContato(c)}'
+          )
+
+          start=s.index('function renderizarClientes(){')
+          end=s.index('\n\nfunction atualizarResumo(){', start)
+          novo_render = '''function grupoStatus(status){if(['Primeiro contato','Segundo contato','Terceiro contato'].includes(status))return 'Contato';return status||'Novo'}\nfunction renderizarClientes(){const busca=(document.getElementById('busca').value||'').toLowerCase(),fs=document.getElementById('filtroStatus').value;const containers={Novo:'novo',Contato:'primeiroContato',Pensando:'pensando','Não atendeu':'naoAtendeu',Recusou:'recusou',Aceitou:'aceitou','Não apto':'naoApto'};[...new Set(Object.values(containers))].forEach(id=>document.getElementById(id).innerHTML='');const lista=clientes.filter(c=>{const tel=c.telefone_celular||c.telefone_residencial||'',status=c.status||'Novo',grupo=grupoStatus(status);const okApto=fs==='Não apto'?status==='Não apto':status!=='Não apto';const okFiltro=fs==='Todos'||status===fs||(fs==='Contato'&&grupo==='Contato');return (c.cliente+' '+tel).toLowerCase().includes(busca)&&okFiltro&&okApto});const counts={Novo:0,Contato:0,Pensando:0,'Não atendeu':0,Recusou:0,Aceitou:0,'Não apto':0};lista.forEach(c=>counts[grupoStatus(c.status||'Novo')]++);Object.entries(containers).forEach(([grupo,id])=>{const subset=lista.filter(c=>grupoStatus(c.status||'Novo')===grupo).slice(0,LIMITE_VISUAL);subset.forEach(c=>document.getElementById(id).insertAdjacentHTML('beforeend',card(c)));if(counts[grupo]>LIMITE_VISUAL)document.getElementById(id).insertAdjacentHTML('beforeend',`<p class="text-xs text-zinc-500 text-center py-3">Mostrando ${LIMITE_VISUAL} de ${counts[grupo]}. Use a busca.</p>`)});document.getElementById('countNovo').textContent=counts.Novo;document.getElementById('countPrimeiroContato').textContent=counts.Contato;document.getElementById('countPensando').textContent=counts.Pensando;document.getElementById('countNaoAtendeu').textContent=counts['Não atendeu'];document.getElementById('countRecusou').textContent=counts.Recusou;document.getElementById('countAceitou').textContent=counts.Aceitou;document.getElementById('countNaoApto').textContent=counts['Não apto'];document.getElementById('colNaoApto').classList.toggle('hidden',fs!=='Não apto');document.getElementById('kanban').classList.toggle('hidden',clientes.length===0);document.getElementById('avisoVazio').classList.toggle('hidden',clientes.length!==0)}'''
+          s=s[:start]+novo_render+s[end:]
+
+          start=s.index('function atualizarResumo(){')
+          end=s.index('\n\nfunction abrirTela(', start)
+          novo_resumo = '''function atualizarResumo(){const ativos=clientes.filter(c=>c.status!=='Não apto'),aceitos=ativos.filter(c=>c.status==='Aceitou'),emContato=ativos.filter(c=>['Primeiro contato','Segundo contato','Terceiro contato'].includes(c.status)),trabalhados=ativos.filter(c=>!!c.status),retornos=ativos.filter(c=>c.status==='Não atendeu'&&c.proximo_contato&&c.proximo_contato<=hojeISO()),mes=mesAtual(),aceitosMes=aceitos.filter(c=>(c.aceito_em||'').slice(0,7)===mes);document.getElementById('totalClientes').textContent=ativos.length;document.getElementById('totalPrimeiroContato').textContent=emContato.length;document.getElementById('totalAceitos').textContent=aceitos.length;document.getElementById('totalRetornos').textContent=retornos.length;document.getElementById('conversao').textContent=(trabalhados.length?aceitos.length/trabalhados.length*100:0).toFixed(1)+'%';document.getElementById('comissaoMesTopo').textContent=moeda(aceitosMes.reduce((s,c)=>s+Number(c.comissao||0),0))}'''
+          s=s[:start]+novo_resumo+s[end:]
+
+          start=s.index('function abrirTela(')
+          end=s.index('\nfunction mostrarSomenteRetornos()', start)
+          nova_tela = '''function abrirTela(tela){const telas=['clientes','agenda','comissoes'];telas.forEach(t=>document.getElementById('tela'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('hidden',t!==tela));[['btnClientes','clientes'],['btnAgenda','agenda'],['btnComissoes','comissoes']].forEach(([id,t])=>{document.getElementById(id).className='px-4 py-2 rounded-xl '+(t===tela?'bg-orange-500 text-black font-semibold':'bg-zinc-800 hover:bg-zinc-700')});if(tela==='agenda')renderizarAgenda();if(tela==='comissoes')renderizarComissoes()}'''
+          s=s[:start]+nova_tela+s[end:]
+
+          agenda_js = '''\nfunction isoSomarDias(iso,dias){const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+dias);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}\nfunction mudarMesAgenda(delta){const [a,m]=agendaMes.split('-').map(Number),d=new Date(a,m-1+delta,1);agendaMes=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;renderizarAgenda()}\nfunction irHojeAgenda(){agendaMes=mesAtual();renderizarAgenda()}\nasync function iniciarDaAgenda(id){const c=clientes.find(x=>x.id===id);if(!c)return;await iniciarContato(id,proximaEtapa(c));renderizarAgenda()}\nfunction eventoAgenda(c){const n=proximaEtapa(c),tel=c.telefone_celular||c.telefone_residencial||'';return `<div class="agendaEvento"><div class="font-semibold text-xs truncate">${escapeHtml(c.cliente)}</div><div class="text-[11px] text-orange-300 mt-1">${rotuloEtapa(n)}</div><div class="flex gap-1 mt-2"><button class="agendaBtn" onclick="iniciarDaAgenda('${c.id}')">Iniciar</button><button class="agendaBtn" onclick="copiar('${escapeHtml(tel)}')">Copiar</button></div></div>`}\nfunction renderizarAgenda(){const grid=document.getElementById('agendaGrid');if(!grid)return;const retornos=clientes.filter(c=>c.status==='Não atendeu'&&c.proximo_contato&&c.status!=='Não apto'),hoje=hojeISO(),fimSemana=isoSomarDias(hoje,7),hojeLista=retornos.filter(c=>c.proximo_contato===hoje),atrasados=retornos.filter(c=>c.proximo_contato<hoje),semana=retornos.filter(c=>c.proximo_contato>=hoje&&c.proximo_contato<=fimSemana);document.getElementById('agendaHoje').textContent=hojeLista.length;document.getElementById('agendaAtrasados').textContent=atrasados.length;document.getElementById('agendaSemana').textContent=semana.length;const [ano,mes]=agendaMes.split('-').map(Number),primeiro=new Date(ano,mes-1,1),dias=new Date(ano,mes,0).getDate(),offset=(primeiro.getDay()+6)%7;document.getElementById('agendaTitulo').textContent=primeiro.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});let html='';for(let i=0;i<offset;i++)html+='<div class="agendaDia vazio"></div>';for(let dia=1;dia<=dias;dia++){const iso=`${ano}-${String(mes).padStart(2,'0')}-${String(dia).padStart(2,'0')}`,eventos=retornos.filter(c=>c.proximo_contato===iso);html+=`<div class="agendaDia ${iso===hoje?'hoje':''}"><div class="agendaNumero">${dia}${iso===hoje?' <span>hoje</span>':''}</div><div class="max-h-52 overflow-y-auto pr-1">${eventos.map(eventoAgenda).join('')||'<p class="text-[11px] text-zinc-700 mt-2">Sem retornos</p>'}</div></div>`}grid.innerHTML=html;document.getElementById('agendaAtrasadosLista').innerHTML=atrasados.length?`<div class="bg-zinc-900 border border-red-900/50 rounded-2xl p-4"><h3 class="font-bold text-red-300 mb-3">⚠️ Retornos atrasados (${atrasados.length})</h3><div class="grid md:grid-cols-2 xl:grid-cols-3 gap-2">${atrasados.sort((a,b)=>a.proximo_contato.localeCompare(b.proximo_contato)).map(c=>`<div class="bg-zinc-950 border border-zinc-800 rounded-xl p-3"><div class="flex justify-between gap-2"><div><p class="font-semibold text-sm">${escapeHtml(c.cliente)}</p><p class="text-xs text-zinc-500">Era para ${new Date(c.proximo_contato+'T12:00:00').toLocaleDateString('pt-BR')} • ${rotuloEtapa(proximaEtapa(c))}</p></div><button class="agendaBtn" onclick="iniciarDaAgenda('${c.id}')">Iniciar</button></div></div>`).join('')}</div></div>`:''}\n'''
+          marker='function renderizarComissoes(){'
+          s=s.replace(marker, agenda_js+'\n'+marker)
+
+          s=s.replace('</style>', '''.agendaDia{background:#09090b;border:1px solid #27272a;border-radius:14px;min-height:150px;padding:9px}.agendaDia.vazio{background:transparent;border-color:#18181b}.agendaDia.hoje{border-color:#f97316;box-shadow:0 0 0 1px rgba(249,115,22,.2)}.agendaNumero{font-size:.75rem;color:#a1a1aa;font-weight:700;margin-bottom:6px}.agendaNumero span{font-size:.6rem;color:#fb923c;margin-left:4px}.agendaEvento{background:#18181b;border:1px solid #27272a;border-radius:10px;padding:7px;margin-bottom:6px}.agendaBtn{font-size:.65rem;background:#27272a;border-radius:8px;padding:4px 7px}.agendaBtn:hover{background:#3f3f46}\n</style>''')
+
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Adiciona agenda de retornos e 2º/3º contatos"
+          git push
