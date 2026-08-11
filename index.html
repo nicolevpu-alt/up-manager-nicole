@@ -1,693 +1,224 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
   <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
-  <title>UP Manager Nicole</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UP Manager</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
 </head>
-
 <body class="bg-zinc-950 text-white min-h-screen">
-
-  <div class="max-w-[1900px] mx-auto p-6">
-
-    <!-- HEADER -->
-
-    <div class="flex flex-col lg:flex-row justify-between gap-4 mb-8">
-
+  <main class="max-w-[1800px] mx-auto p-4 md:p-6">
+    <header class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
       <div>
-
-        <h1 class="text-5xl font-bold">
-          🧡 UP Manager
-        </h1>
-
-        <p class="text-zinc-400 mt-2">
-          CRM pessoal de UPs da Nicole
-        </p>
-
+        <h1 class="text-3xl md:text-5xl font-bold">🧡 UP Manager</h1>
+        <p class="text-zinc-400 mt-2">Controle de ups, retornos e comissão</p>
       </div>
-
-      <div class="flex flex-wrap gap-3">
-
-        <button
-          onclick="exportarClientes()"
-          class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl">
-
-          📤 Exportar
-        </button>
-
-        <label
-          class="bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition px-5 py-3 rounded-2xl cursor-pointer">
-
+      <div class="flex flex-wrap gap-2">
+        <label class="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold cursor-pointer hover:bg-orange-400">
           📥 Importar Excel
-
-          <input
-            type="file"
-            accept=".xlsx,.xls"
-            onchange="importarPlanilha(event)"
-            class="hidden"
-          />
-
+          <input id="arquivo" type="file" accept=".xlsx,.xls,.csv" class="hidden" onchange="importarPlanilha(event)" />
         </label>
-
+        <button onclick="exportarExcel()" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700">📤 Exportar Excel</button>
+        <button onclick="backupJSON()" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700">💾 Backup</button>
       </div>
+    </header>
 
-    </div>
+    <section class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-6">
+      <div class="cardResumo"><span>Clientes</span><strong id="totalClientes">0</strong></div>
+      <div class="cardResumo"><span>Aceitos</span><strong id="totalAceitos">0</strong></div>
+      <div class="cardResumo"><span>Retornos hoje</span><strong id="totalRetornos">0</strong></div>
+      <div class="cardResumo"><span>Pensando</span><strong id="totalPensando">0</strong></div>
+      <div class="cardResumo"><span>Conversão</span><strong id="conversao">0%</strong></div>
+      <div class="cardResumo"><span>Comissão</span><strong id="comissaoTotal">R$ 0,00</strong></div>
+    </section>
 
-    <!-- DASHBOARD -->
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-
-        <p class="text-zinc-400 text-sm">
-          Clientes
-        </p>
-
-        <h2
-          id="totalClientes"
-          class="text-4xl font-bold mt-2">
-
-          0
-        </h2>
-
+    <section class="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-3 md:p-4 mb-6">
+      <div class="grid md:grid-cols-[1fr_auto_auto] gap-3">
+        <input id="busca" oninput="renderizar()" placeholder="Buscar cliente ou telefone..." class="bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-orange-500" />
+        <select id="filtroStatus" onchange="renderizar()" class="bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3">
+          <option value="Todos">Todos os status</option>
+          <option value="Novo">Novos</option>
+          <option value="Aceitou">Aceitou</option>
+          <option value="Recusou">Recusou</option>
+          <option value="Não atendeu">Não atendeu</option>
+          <option value="Pensando">Pensando</option>
+        </select>
+        <button onclick="mostrarSomenteRetornos()" class="px-4 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">📅 Retornos de hoje</button>
       </div>
+    </section>
 
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+    <section id="avisoVazio" class="hidden text-center py-16 text-zinc-400 bg-zinc-900/50 rounded-2xl border border-zinc-800">
+      <p class="text-xl mb-2">Nenhum cliente carregado.</p>
+      <p>Importe sua planilha para começar.</p>
+    </section>
 
-        <p class="text-zinc-400 text-sm">
-          Fechados
-        </p>
+    <section id="kanban" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+      <div class="coluna"><h2>🔵 Novos <span id="countNovo">0</span></h2><div id="novo"></div></div>
+      <div class="coluna"><h2>🟡 Pensando <span id="countPensando">0</span></h2><div id="pensando"></div></div>
+      <div class="coluna"><h2>⚪ Não atendeu <span id="countNaoAtendeu">0</span></h2><div id="naoAtendeu"></div></div>
+      <div class="coluna"><h2>🔴 Recusou <span id="countRecusou">0</span></h2><div id="recusou"></div></div>
+      <div class="coluna"><h2>🟢 Aceitou <span id="countAceitou">0</span></h2><div id="aceitou"></div></div>
+    </section>
+  </main>
 
-        <h2
-          id="upsFechados"
-          class="text-4xl font-bold mt-2">
-
-          0
-        </h2>
-
-      </div>
-
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-
-        <p class="text-zinc-400 text-sm">
-          Comissão
-        </p>
-
-        <h2
-          id="comissaoTotal"
-          class="text-4xl font-bold mt-2">
-
-          R$ 0
-        </h2>
-
-      </div>
-
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-
-        <p class="text-zinc-400 text-sm">
-          Pendentes
-        </p>
-
-        <h2
-          id="pendentes"
-          class="text-4xl font-bold mt-2">
-
-          0
-        </h2>
-
-      </div>
-
-    </div>
-
-    <!-- BUSCA -->
-
-    <div class="mb-8">
-
-      <input
-        type="text"
-        id="search"
-        placeholder="Buscar cliente..."
-        onkeyup="renderizarClientes()"
-        class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 outline-none focus:border-orange-500"
-      />
-
-    </div>
-
-    <!-- KANBAN -->
-
-    <div
-      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
-
-      <div class="kanban-coluna">
-        <div class="titulo-kanban text-blue-400">
-          🔵 Novos
-          <span id="countNovo">0</span>
-        </div>
-
-        <div id="novoContainer"></div>
-
-        <button
-          onclick="carregarMais('Novo')"
-          class="botao-carregar">
-
-          Carregar mais
-        </button>
-      </div>
-
-      <div class="kanban-coluna">
-        <div class="titulo-kanban text-yellow-400">
-          🟡 Pensando
-          <span id="countPensando">0</span>
-        </div>
-
-        <div id="pensandoContainer"></div>
-
-        <button
-          onclick="carregarMais('Pensando')"
-          class="botao-carregar">
-
-          Carregar mais
-        </button>
-      </div>
-
-      <div class="kanban-coluna">
-        <div class="titulo-kanban text-red-400">
-          🔴 Não respondeu
-          <span id="countNaoRespondeu">0</span>
-        </div>
-
-        <div id="naoRespondeuContainer"></div>
-
-        <button
-          onclick="carregarMais('Não respondeu')"
-          class="botao-carregar">
-
-          Carregar mais
-        </button>
-      </div>
-
-      <div class="kanban-coluna">
-        <div class="titulo-kanban text-zinc-300">
-          ⚫ Não atendeu
-          <span id="countNaoAtendeu">0</span>
-        </div>
-
-        <div id="naoAtendeuContainer"></div>
-
-        <button
-          onclick="carregarMais('Não atendeu')"
-          class="botao-carregar">
-
-          Carregar mais
-        </button>
-      </div>
-
-      <div class="kanban-coluna">
-        <div class="titulo-kanban text-green-400">
-          🟢 Fechado
-          <span id="countFechado">0</span>
-        </div>
-
-        <div id="fechadoContainer"></div>
-
-        <button
-          onclick="carregarMais('Fechado')"
-          class="botao-carregar">
-
-          Carregar mais
-        </button>
-      </div>
-
-    </div>
-
-  </div>
+  <div id="toast" class="fixed bottom-5 right-5 hidden bg-zinc-800 border border-zinc-700 px-4 py-3 rounded-xl shadow-xl"></div>
 
 <style>
-
-.kanban-coluna {
-
-  background: rgba(24,24,27,.6);
-
-  border-radius: 24px;
-
-  padding: 16px;
-
-  min-height: 400px;
-}
-
-.titulo-kanban {
-
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  margin-bottom: 16px;
-
-  font-size: 20px;
-
-  font-weight: bold;
-}
-
-.titulo-kanban span {
-
-  background: rgba(255,255,255,.1);
-
-  padding: 4px 10px;
-
-  border-radius: 999px;
-
-  font-size: 12px;
-}
-
-.botao-carregar {
-
-  width: 100%;
-
-  margin-top: 12px;
-
-  background: rgb(39 39 42);
-
-  padding: 10px;
-
-  border-radius: 14px;
-
-  font-size: 14px;
-}
-
-.card {
-
-  background: rgb(24 24 27);
-
-  border: 1px solid rgb(39 39 42);
-
-  border-radius: 20px;
-
-  padding: 14px;
-
-  margin-bottom: 12px;
-}
-
-.botao {
-
-  padding: 6px 10px;
-
-  border-radius: 12px;
-
-  font-size: 12px;
-
-  margin-top: 6px;
-}
-
+  .cardResumo{background:#18181b;border:1px solid #27272a;border-radius:1rem;padding:1rem;display:flex;flex-direction:column;gap:.35rem}.cardResumo span{color:#a1a1aa;font-size:.8rem}.cardResumo strong{font-size:1.7rem}.coluna{background:rgba(24,24,27,.7);border:1px solid #27272a;border-radius:1.25rem;padding:.8rem;min-height:260px}.coluna h2{font-weight:700;display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}.coluna h2 span{font-size:.75rem;background:#27272a;padding:.25rem .55rem;border-radius:999px}.cliente{background:#09090b;border:1px solid #27272a;border-radius:1rem;padding:.9rem;margin-bottom:.7rem}.cliente:hover{border-color:#52525b}.badge{font-size:.7rem;padding:.22rem .45rem;border-radius:999px;background:#27272a;color:#d4d4d8}.btn{font-size:.72rem;padding:.42rem .55rem;border-radius:.65rem;background:#27272a}.btn:hover{background:#3f3f46}.retornoVencido{border-color:#f97316;box-shadow:0 0 0 1px rgba(249,115,22,.25)}
 </style>
 
 <script>
+const STORAGE_KEY='up_manager_clientes_v2';
+let clientes=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+let filtroRetorno=false;
 
-let clientes =
-  JSON.parse(localStorage.getItem('clientes')) || [];
-
-const LIMITE = 30;
-
-const paginas = {
-
-  'Novo': 1,
-  'Pensando': 1,
-  'Não respondeu': 1,
-  'Não atendeu': 1,
-  'Fechado': 1
+const planos={
+  '400MB':109.90,
+  '500MB':109.90,
+  '600MB':129.90,
+  '800MB':149.90,
+  '1GB':199.90
 };
+const sugestoes={'400MB':'600MB','500MB':'600MB','600MB':'800MB','800MB':'1GB','1GB':'1GB'};
+const normalizarPlano=v=>String(v||'').toUpperCase().replace(/\s+/g,'').replace('MBPS','MB').replace('GBPS','GB');
+const hojeISO=()=>new Date().toISOString().slice(0,10);
+function somarDias(data,dias){const d=new Date(data+'T12:00:00');d.setDate(d.getDate()+dias);return d.toISOString().slice(0,10)}
+function moeda(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function salvar(){localStorage.setItem(STORAGE_KEY,JSON.stringify(clientes))}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),1800)}
+function escapeHtml(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function telefoneLimpo(t){return String(t||'').replace(/\D/g,'')}
+function whatsapp(t){let n=telefoneLimpo(t);if(n.length===10||n.length===11)n='55'+n;window.open('https://wa.me/'+n,'_blank')}
+function copiar(t){navigator.clipboard.writeText(String(t||''));toast('Número copiado 🧡')}
 
-const valoresPlanos = {
-
-  '400MB': 109.90,
-  '500MB': 109.90,
-  '600MB': 129.90,
-  '800MB': 149.90,
-  '1GB': 199.90
-};
-
-function salvarClientes() {
-
-  localStorage.setItem(
-    'clientes',
-    JSON.stringify(clientes)
-  );
+function atualizarStatus(id,status){
+  const c=clientes.find(x=>x.id===id); if(!c)return;
+  c.status=status;
+  c.dataContato=hojeISO();
+  c.proximoContato=status==='Não atendeu'?somarDias(c.dataContato,3):'';
+  salvar(); renderizar();
 }
-
-function carregarMais(status) {
-
-  paginas[status]++;
-
-  renderizarClientes();
+function atualizarPlano(id,plano){
+  const c=clientes.find(x=>x.id===id); if(!c)return;
+  c.planoFechado=plano;
+  c.valorNovo=planos[plano]??0;
+  c.comissao=Math.max(0,(c.valorNovo||0)-(c.valorAtual||0));
+  salvar(); renderizar();
 }
+function atualizarObs(id,obs){const c=clientes.find(x=>x.id===id);if(c){c.observacao=obs;salvar()}}
 
-function alterarStatus(index, status) {
-
-  clientes[index].status = status;
-
-  salvarClientes();
-
-  renderizarClientes();
-}
-
-function alterarPlano(index, plano) {
-
-  clientes[index].planoOfertado = plano;
-
-  const atual =
-    valoresPlanos[
-      clientes[index].planoAtual
-    ];
-
-  const novo =
-    valoresPlanos[plano];
-
-  clientes[index].comissao =
-    (novo - atual).toFixed(2);
-
-  salvarClientes();
-
-  renderizarClientes();
-}
-
-function copiarNumero(numero) {
-
-  navigator.clipboard.writeText(numero);
-
-  alert('Número copiado 😭🧡');
-}
-
-function criarCard(cliente, index) {
-
-  return `
-
-    <div class="card">
-
-      <h3 class="font-bold text-sm">
-        ${cliente.nome}
-      </h3>
-
-      <p class="text-zinc-400 text-xs mt-1">
-        📞 ${cliente.telefone || '-'}
-      </p>
-
-      <div class="mt-3 space-y-2">
-
-        <p class="text-xs">
-          📶 ${cliente.planoAtual}
-        </p>
-
-        <select
-          onchange="alterarPlano(${index}, this.value)"
-          class="w-full bg-zinc-800 rounded-xl px-3 py-2 text-xs">
-
-          <option value="500MB" ${cliente.planoOfertado === '500MB' ? 'selected' : ''}>
-            500MB
-          </option>
-
-          <option value="600MB" ${cliente.planoOfertado === '600MB' ? 'selected' : ''}>
-            600MB
-          </option>
-
-          <option value="800MB" ${cliente.planoOfertado === '800MB' ? 'selected' : ''}>
-            800MB
-          </option>
-
-          <option value="1GB" ${cliente.planoOfertado === '1GB' ? 'selected' : ''}>
-            1GB
-          </option>
-
-        </select>
-
-        <p class="text-xs">
-          💰 R$ ${cliente.comissao}
-        </p>
-
-      </div>
-
-      <div class="flex flex-wrap gap-2 mt-3">
-
-        <button
-          onclick="copiarNumero('${cliente.telefone}')"
-          class="botao bg-green-500/20 text-green-400">
-
-          Copiar
-        </button>
-
-        <button
-          onclick="alterarStatus(${index}, 'Pensando')"
-          class="botao bg-yellow-500/20 text-yellow-400">
-
-          Pensando
-        </button>
-
-        <button
-          onclick="alterarStatus(${index}, 'Não respondeu')"
-          class="botao bg-red-500/20 text-red-400">
-
-          Não respondeu
-        </button>
-
-        <button
-          onclick="alterarStatus(${index}, 'Não atendeu')"
-          class="botao bg-zinc-700 text-zinc-300">
-
-          Não atendeu
-        </button>
-
-        <button
-          onclick="alterarStatus(${index}, 'Fechado')"
-          class="botao bg-green-500/20 text-green-400">
-
-          Fechado
-        </button>
-
-      </div>
-
+function card(c){
+  const vencido=c.status==='Não atendeu'&&c.proximoContato&&c.proximoContato<=hojeISO();
+  const planoSugerido=c.planoSugerido||sugestoes[c.planoAtual]||'';
+  return `<article class="cliente ${vencido?'retornoVencido':''}">
+    <div class="flex justify-between gap-2 items-start">
+      <div><h3 class="font-semibold text-sm">${escapeHtml(c.nome)}</h3><p class="text-zinc-400 text-xs mt-1">📞 ${escapeHtml(c.telefone||'-')}</p></div>
+      ${vencido?'<span class="badge text-orange-300">Retorno hoje</span>':''}
     </div>
-  `;
+    <div class="grid grid-cols-2 gap-2 mt-3 text-xs">
+      <div><span class="text-zinc-500">Atual</span><p>${escapeHtml(c.planoAtual||'-')}</p></div>
+      <div><span class="text-zinc-500">Sugestão</span><p>${escapeHtml(planoSugerido||'-')}</p></div>
+      <div><span class="text-zinc-500">Novo valor</span><p>${moeda(c.valorNovo||planos[c.planoFechado]||planos[planoSugerido]||0)}</p></div>
+      <div><span class="text-zinc-500">Comissão</span><p class="text-green-400">${moeda(c.comissao)}</p></div>
+    </div>
+    <select onchange="atualizarPlano('${c.id}',this.value)" class="mt-3 w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2 text-xs">
+      ${['500MB','600MB','800MB','1GB'].map(p=>`<option value="${p}" ${(c.planoFechado||planoSugerido)===p?'selected':''}>${p}</option>`).join('')}
+    </select>
+    ${c.proximoContato?`<p class="text-xs mt-2 text-orange-300">📅 Rechamar: ${new Date(c.proximoContato+'T12:00:00').toLocaleDateString('pt-BR')}</p>`:''}
+    <textarea onchange="atualizarObs('${c.id}',this.value)" placeholder="Observação..." class="mt-2 w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-xs resize-none">${escapeHtml(c.observacao||'')}</textarea>
+    <div class="flex flex-wrap gap-1.5 mt-2">
+      <button class="btn" onclick="copiar('${escapeHtml(c.telefone)}')">📋 Copiar</button>
+      <button class="btn" onclick="whatsapp('${escapeHtml(c.telefone)}')">💬 WhatsApp</button>
+      <button class="btn text-yellow-300" onclick="atualizarStatus('${c.id}','Pensando')">Pensando</button>
+      <button class="btn text-zinc-300" onclick="atualizarStatus('${c.id}','Não atendeu')">Não atendeu</button>
+      <button class="btn text-red-300" onclick="atualizarStatus('${c.id}','Recusou')">Recusou</button>
+      <button class="btn text-green-300" onclick="atualizarStatus('${c.id}','Aceitou')">Aceitou</button>
+    </div>
+  </article>`;
 }
 
-function renderizarClientes() {
-
-  const busca =
-    document
-      .getElementById('search')
-      .value
-      .toLowerCase();
-
-  const statuses = [
-
-    'Novo',
-    'Pensando',
-    'Não respondeu',
-    'Não atendeu',
-    'Fechado'
-  ];
-
-  const containers = {
-
-    'Novo':
-      document.getElementById('novoContainer'),
-
-    'Pensando':
-      document.getElementById('pensandoContainer'),
-
-    'Não respondeu':
-      document.getElementById('naoRespondeuContainer'),
-
-    'Não atendeu':
-      document.getElementById('naoAtendeuContainer'),
-
-    'Fechado':
-      document.getElementById('fechadoContainer')
-  };
-
-  Object.values(containers)
-    .forEach(c => c.innerHTML = '');
-
-  statuses.forEach(status => {
-
-    const filtrados = clientes.filter(cliente => {
-
-      return (
-        (cliente.status || 'Novo') === status
-        &&
-        cliente.nome
-          .toLowerCase()
-          .includes(busca)
-      );
-    });
-
-    document.getElementById(
-
-      `count${status
-        .replaceAll(' ', '')
-        .replace('Não', 'Nao')}`
-
-    ).innerText = filtrados.length;
-
-    filtrados
-
-      .slice(
-        0,
-        paginas[status] * LIMITE
-      )
-
-      .forEach((cliente, index) => {
-
-        containers[status]
-          .innerHTML += criarCard(cliente, index);
-      });
+function renderizar(){
+  const busca=(document.getElementById('busca').value||'').toLowerCase();
+  const fs=document.getElementById('filtroStatus').value;
+  const containers={Novo:'novo',Pensando:'pensando','Não atendeu':'naoAtendeu',Recusou:'recusou',Aceitou:'aceitou'};
+  Object.values(containers).forEach(id=>document.getElementById(id).innerHTML='');
+  let lista=clientes.filter(c=>{
+    const txt=(c.nome+' '+(c.telefone||'')).toLowerCase();
+    const okBusca=txt.includes(busca);
+    const okStatus=fs==='Todos'||(c.status||'Novo')===fs;
+    const okRetorno=!filtroRetorno||(c.status==='Não atendeu'&&c.proximoContato&&c.proximoContato<=hojeISO());
+    return okBusca&&okStatus&&okRetorno;
   });
-
-  document.getElementById('totalClientes')
-    .innerText = clientes.length;
-
-  const fechados =
-    clientes.filter(cliente =>
-      cliente.status === 'Fechado'
-    );
-
-  document.getElementById('upsFechados')
-    .innerText = fechados.length;
-
-  document.getElementById('pendentes')
-    .innerText =
-      clientes.length - fechados.length;
-
-  const comissao = fechados.reduce(
-
-    (acc, cliente) =>
-      acc + Number(cliente.comissao || 0),
-
-    0
-  );
-
-  document.getElementById('comissaoTotal')
-    .innerText =
-      `R$ ${comissao.toFixed(2)}`;
+  const counts={Novo:0,Pensando:0,'Não atendeu':0,Recusou:0,Aceitou:0};
+  lista.forEach(c=>{const s=c.status||'Novo'; if(counts[s]!==undefined)counts[s]++; const id=containers[s]||'novo';document.getElementById(id).insertAdjacentHTML('beforeend',card(c))});
+  document.getElementById('countNovo').textContent=counts.Novo;
+  document.getElementById('countPensando').textContent=counts.Pensando;
+  document.getElementById('countNaoAtendeu').textContent=counts['Não atendeu'];
+  document.getElementById('countRecusou').textContent=counts.Recusou;
+  document.getElementById('countAceitou').textContent=counts.Aceitou;
+  const aceitos=clientes.filter(c=>c.status==='Aceitou');
+  const trabalhados=clientes.filter(c=>c.status&&c.status!=='Novo');
+  const retornos=clientes.filter(c=>c.status==='Não atendeu'&&c.proximoContato&&c.proximoContato<=hojeISO());
+  document.getElementById('totalClientes').textContent=clientes.length;
+  document.getElementById('totalAceitos').textContent=aceitos.length;
+  document.getElementById('totalRetornos').textContent=retornos.length;
+  document.getElementById('totalPensando').textContent=clientes.filter(c=>c.status==='Pensando').length;
+  document.getElementById('conversao').textContent=(trabalhados.length?aceitos.length/trabalhados.length*100:0).toFixed(1)+'%';
+  document.getElementById('comissaoTotal').textContent=moeda(aceitos.reduce((s,c)=>s+Number(c.comissao||0),0));
+  document.getElementById('kanban').classList.toggle('hidden',clientes.length===0);
+  document.getElementById('avisoVazio').classList.toggle('hidden',clientes.length!==0);
 }
+function mostrarSomenteRetornos(){filtroRetorno=!filtroRetorno;document.getElementById('filtroStatus').value='Todos';renderizar();toast(filtroRetorno?'Mostrando retornos de hoje':'Mostrando todos os clientes')}
 
-function exportarClientes() {
-
-  const blob = new Blob(
-    [JSON.stringify(clientes, null, 2)],
-    {
-      type: 'application/json'
-    }
-  );
-
-  const url =
-    URL.createObjectURL(blob);
-
-  const a =
-    document.createElement('a');
-
-  a.href = url;
-
-  a.download = 'clientes.json';
-
-  a.click();
+function acharColuna(headers,possiveis){
+  const norm=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+  const hs=headers.map(norm); for(const p of possiveis){const i=hs.indexOf(norm(p));if(i>=0)return i} return -1;
 }
-
-function importarPlanilha(event) {
-
-  const file =
-    event.target.files[0];
-
-  if(!file) return;
-
-  const reader =
-    new FileReader();
-
-  reader.onload = function(e) {
-
-    const data =
-      new Uint8Array(e.target.result);
-
-    const workbook =
-      XLSX.read(data, {
-        type: 'array'
-      });
-
-    const worksheet =
-      workbook.Sheets[
-        workbook.SheetNames[0]
-      ];
-
-    const rows =
-      XLSX.utils.sheet_to_json(
-        worksheet,
-        { header: 1 }
-      );
-
-    const novosClientes = [];
-
-    for(let i = 1; i < rows.length; i++) {
-
-      const row = rows[i];
-
-      if(!row || row.length === 0)
-        continue;
-
-      novosClientes.push({
-
-        nome:
-          String(row[0] || `Cliente ${i}`),
-
-        telefone:
-          String(row[1] || ''),
-
-        planoAtual: '400MB',
-
-        planoOfertado: '600MB',
-
-        comissao: '20.00',
-
-        status: 'Novo'
-      });
-    }
-
-    clientes = novosClientes;
-
-    salvarClientes();
-
-    paginas = {
-
-      'Novo': 1,
-      'Pensando': 1,
-      'Não respondeu': 1,
-      'Não atendeu': 1,
-      'Fechado': 1
-    };
-
-    renderizarClientes();
-
-    alert(
-      `${novosClientes.length} clientes importados 😭🧡`
-    );
+function importarPlanilha(event){
+  const file=event.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:true});
+    const nomeAba=wb.SheetNames.includes('Base_AppSheet')?'Base_AppSheet':wb.SheetNames[0];
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[nomeAba],{header:1,defval:''});
+    if(rows.length<2){toast('Planilha sem clientes');return}
+    const h=rows[0];
+    const iNome=acharColuna(h,['Cliente','Nome']);
+    const iTel=acharColuna(h,['Telefone celular','Telefone','Telefone residencial']);
+    const iStatus=acharColuna(h,['Status']);
+    const iPlano=acharColuna(h,['Plano Atual','Plano']);
+    const iValor=acharColuna(h,['Valor Atual (R$)','Valor Atual']);
+    const iSug=acharColuna(h,['Plano Sugerido']);
+    const iFechado=acharColuna(h,['Plano Fechado']);
+    const iProx=acharColuna(h,['Próximo Contato','Proximo Contato']);
+    const iCom=acharColuna(h,['Comissão (R$)','Comissao']);
+    const iObs=acharColuna(h,['Observação','Observacao']);
+    const iId=acharColuna(h,['ID']);
+    const novos=[];
+    rows.slice(1).forEach((r,idx)=>{
+      const nome=String(r[iNome>=0?iNome:0]||'').trim(); if(!nome)return;
+      let pa=normalizarPlano(iPlano>=0?r[iPlano]:'400MB')||'400MB';
+      let pf=normalizarPlano(iFechado>=0?r[iFechado]:'');
+      const ps=normalizarPlano(iSug>=0?r[iSug]:'')||sugestoes[pa]||'';
+      let st=String(iStatus>=0?r[iStatus]:'').trim()||'Novo';
+      if(st==='Fechado')st='Aceitou'; if(st==='Não respondeu')st='Não atendeu';
+      let prox=''; const rawProx=iProx>=0?r[iProx]:'';
+      if(rawProx instanceof Date)prox=rawProx.toISOString().slice(0,10); else if(rawProx){const d=new Date(rawProx);if(!isNaN(d))prox=d.toISOString().slice(0,10)}
+      const va=Number(iValor>=0?r[iValor]:planos[pa])||planos[pa]||0;
+      const vn=planos[pf||ps]||0;
+      novos.push({id:String(iId>=0?r[iId]:'')||('UP'+Date.now()+idx),nome,telefone:String(iTel>=0?r[iTel]:'').trim(),status:st,planoAtual:pa,valorAtual:va,planoSugerido:ps,planoFechado:pf||ps,valorNovo:vn,comissao:Number(iCom>=0?r[iCom]:Math.max(0,vn-va))||0,proximoContato:prox,observacao:String(iObs>=0?r[iObs]:'')});
+    });
+    clientes=novos; salvar(); renderizar(); toast(`${clientes.length} clientes importados`); event.target.value='';
   };
-
   reader.readAsArrayBuffer(file);
 }
-
-renderizarClientes();
-
+function exportarExcel(){
+  const dados=clientes.map(c=>({ID:c.id,Cliente:c.nome,Telefone:c.telefone,Status:c.status,'Plano Atual':c.planoAtual,'Valor Atual':c.valorAtual,'Plano Sugerido':c.planoSugerido,'Plano Fechado':c.planoFechado,'Valor Novo':c.valorNovo,'Próximo Contato':c.proximoContato,'Comissão':c.comissao,'Observação':c.observacao}));
+  const ws=XLSX.utils.json_to_sheet(dados); const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Controle UP');XLSX.writeFile(wb,'controle-up.xlsx');
+}
+function backupJSON(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(clientes,null,2)],{type:'application/json'}));a.download='backup-up-manager.json';a.click()}
+renderizar();
 </script>
-
 </body>
 </html>
