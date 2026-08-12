@@ -1,0 +1,165 @@
+from pathlib import Path
+
+p = Path('index.html')
+s = p.read_text()
+
+if 'btnIndicadores' not in s:
+    s = s.replace(
+        '<button id="btnAgenda" onclick="abrirTela(\'agenda\')" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700">📅 Agenda</button>\n      <button id="btnComissoes"',
+        '<button id="btnAgenda" onclick="abrirTela(\'agenda\')" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700">📅 Agenda</button>\n      <button id="btnIndicadores" onclick="abrirTela(\'indicadores\')" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700">📊 Indicadores</button>\n      <button id="btnComissoes"'
+    )
+
+painel = '''
+  <section id="telaIndicadores" class="hidden">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 mb-5">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-2xl font-bold">📊 Painel de indicadores</h2>
+          <p class="text-zinc-400 text-sm mt-1">Retorno = cliente chamado no período que depois respondeu como Pensando, Aceitou ou Recusou.</p>
+        </div>
+        <input id="mesIndicadores" type="month" onchange="renderizarIndicadores()" class="bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3" />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-5">
+      <div class="cardResumo"><span>Contatos realizados</span><strong id="indContatos">0</strong></div>
+      <div class="cardResumo"><span>Clientes chamados</span><strong id="indClientes">0</strong></div>
+      <div class="cardResumo"><span>% de retorno</span><strong id="indRetorno">0%</strong></div>
+      <div class="cardResumo"><span>UPs aceitos</span><strong id="indAceitos">0</strong></div>
+      <div class="cardResumo"><span>Conversão</span><strong id="indConversao">0%</strong></div>
+      <div class="cardResumo"><span>Não atendeu</span><strong id="indNaoAtendeu">0</strong></div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-3 mb-5">
+      <div class="cardResumo"><span>1º contato</span><strong id="indPrimeiro">0</strong></div>
+      <div class="cardResumo"><span>2º contato</span><strong id="indSegundo">0</strong></div>
+      <div class="cardResumo"><span>3º contato</span><strong id="indTerceiro">0</strong></div>
+    </div>
+
+    <div class="grid xl:grid-cols-[1.35fr_.9fr] gap-5">
+      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div><h3 class="font-bold">Atividade por dia</h3><p class="text-xs text-zinc-500 mt-1">Contatos e respostas registradas em cada dia.</p></div>
+          <div class="text-[11px] text-zinc-500"><span class="text-orange-300">■</span> contatos &nbsp; <span class="text-green-300">■</span> respostas</div>
+        </div>
+        <div id="graficoIndicadores" class="space-y-2"></div>
+      </div>
+
+      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
+        <h3 class="font-bold mb-4">Resultados do mês</h3>
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between bg-zinc-950 rounded-xl p-3"><span class="text-yellow-300">Pensando</span><strong id="indPensando">0</strong></div>
+          <div class="flex justify-between bg-zinc-950 rounded-xl p-3"><span class="text-green-300">Aceitou</span><strong id="indResultadoAceitou">0</strong></div>
+          <div class="flex justify-between bg-zinc-950 rounded-xl p-3"><span class="text-red-300">Recusou</span><strong id="indRecusou">0</strong></div>
+          <div class="flex justify-between bg-zinc-950 rounded-xl p-3"><span class="text-zinc-300">Não atendeu</span><strong id="indResultadoNaoAtendeu">0</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden mt-5">
+      <div class="p-4 border-b border-zinc-800 font-semibold">Resumo diário</div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="text-zinc-400 bg-zinc-950/60"><tr><th class="text-left p-3">Dia</th><th class="text-right p-3">Contatos</th><th class="text-right p-3">Respostas</th><th class="text-right p-3">Aceites</th><th class="text-right p-3">Não atendeu</th></tr></thead>
+          <tbody id="tabelaIndicadores"></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="text-xs text-zinc-600 mt-4">O histórico anterior à criação deste painel foi reconstruído a partir do último contato conhecido. Os indicadores ficam completos a partir desta atualização.</p>
+  </section>
+'''
+if 'id="telaIndicadores"' not in s:
+    s = s.replace('  <section id="telaComissoes" class="hidden">', painel + '\n  <section id="telaComissoes" class="hidden">')
+
+if 'let historico=[];' not in s:
+    s = s.replace('let clientes=[];', 'let clientes=[];let historico=[];')
+
+s = s.replace(
+    'function renderTudo(){atualizarResumo();renderizarClientes();renderizarAgenda();renderizarComissoes()}',
+    'function renderTudo(){atualizarResumo();renderizarClientes();renderizarAgenda();renderizarIndicadores();renderizarComissoes()}'
+)
+
+carregar_hist = '''
+async function carregarHistorico(){
+  const carregados=[];let inicio=0,pagina=1000;
+  while(true){
+    const {data,error}=await db.from('historico_contatos').select('*').order('ocorrido_em',{ascending:true}).range(inicio,inicio+pagina-1);
+    if(error){toast('Erro ao carregar indicadores: '+error.message);return}
+    carregados.push(...(data||[]));
+    if(!data||data.length<pagina)break;
+    inicio+=pagina;
+  }
+  historico=carregados;
+}
+
+function registrarEventoLocal(anterior,novo){
+  if(!anterior||anterior.status===novo.status)return;
+  let evento=null,etapa=Number(novo.contato_etapa||0)||null;
+  if(['Primeiro contato','Segundo contato','Terceiro contato'].includes(novo.status))evento='Contato';
+  else if(['Pensando','Aceitou','Recusou','Não atendeu'].includes(novo.status))evento=novo.status;
+  if(!evento)return;
+  historico.push({id:'local-'+Date.now()+'-'+novo.id,cliente_id:novo.id,evento,etapa,ocorrido_em:new Date().toISOString(),origem:'sistema'});
+}
+'''
+if 'async function carregarHistorico()' not in s:
+    s = s.replace('function renderTudo(){', carregar_hist + '\nfunction renderTudo(){')
+
+s = s.replace('clientes=Array.from(mapa.values());renderTudo()', 'clientes=Array.from(mapa.values());await carregarHistorico();renderTudo()')
+s = s.replace('ultimaMutacaoPorId.set(id,++versaoDados);substituirCliente(data);renderTudo();return true}', 'ultimaMutacaoPorId.set(id,++versaoDados);registrarEventoLocal(anterior,data);substituirCliente(data);renderTudo();return true}')
+
+old = "function abrirTela(tela){const telas=['clientes','agenda','comissoes'];telas.forEach(t=>document.getElementById('tela'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('hidden',t!==tela));[['btnClientes','clientes'],['btnAgenda','agenda'],['btnComissoes','comissoes']].forEach(([id,t])=>{document.getElementById(id).className='px-4 py-2 rounded-xl '+(t===tela?'bg-orange-500 text-black font-semibold':'bg-zinc-800 hover:bg-zinc-700')});if(tela==='agenda')renderizarAgenda();if(tela==='comissoes')renderizarComissoes()}"
+new = "function abrirTela(tela){const telas=['clientes','agenda','indicadores','comissoes'];telas.forEach(t=>document.getElementById('tela'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('hidden',t!==tela));[['btnClientes','clientes'],['btnAgenda','agenda'],['btnIndicadores','indicadores'],['btnComissoes','comissoes']].forEach(([id,t])=>{document.getElementById(id).className='px-4 py-2 rounded-xl '+(t===tela?'bg-orange-500 text-black font-semibold':'bg-zinc-800 hover:bg-zinc-700')});if(tela==='agenda')renderizarAgenda();if(tela==='indicadores')renderizarIndicadores();if(tela==='comissoes')renderizarComissoes()}"
+s = s.replace(old, new)
+
+indicadores_js = '''
+function dataLocalISO(iso){
+  const d=new Date(iso);if(Number.isNaN(d.getTime()))return '';
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function renderizarIndicadores(){
+  const input=document.getElementById('mesIndicadores');if(!input)return;if(!input.value)input.value=mesAtual();
+  const mes=input.value,respostasValidas=new Set(['Pensando','Aceitou','Recusou']);
+  const eventosMes=historico.filter(e=>dataLocalISO(e.ocorrido_em).slice(0,7)===mes);
+  const contatos=eventosMes.filter(e=>e.evento==='Contato');
+  const idsContato=new Set(contatos.map(e=>e.cliente_id));
+  const primeiroContato=new Map();
+  contatos.forEach(e=>{const t=new Date(e.ocorrido_em).getTime(),ant=primeiroContato.get(e.cliente_id);if(ant==null||t<ant)primeiroContato.set(e.cliente_id,t)});
+  const retornaram=new Set(),aceitaram=new Set();
+  historico.forEach(e=>{
+    const inicio=primeiroContato.get(e.cliente_id);if(inicio==null||new Date(e.ocorrido_em).getTime()<inicio)return;
+    if(respostasValidas.has(e.evento))retornaram.add(e.cliente_id);
+    if(e.evento==='Aceitou')aceitaram.add(e.cliente_id);
+  });
+  const naoAtendeu=eventosMes.filter(e=>e.evento==='Não atendeu').length;
+  const retornoPct=idsContato.size?retornaram.size/idsContato.size*100:0;
+  const conversaoPct=idsContato.size?aceitaram.size/idsContato.size*100:0;
+  document.getElementById('indContatos').textContent=contatos.length;
+  document.getElementById('indClientes').textContent=idsContato.size;
+  document.getElementById('indRetorno').textContent=retornoPct.toFixed(1)+'%';
+  document.getElementById('indAceitos').textContent=aceitaram.size;
+  document.getElementById('indConversao').textContent=conversaoPct.toFixed(1)+'%';
+  document.getElementById('indNaoAtendeu').textContent=naoAtendeu;
+  document.getElementById('indPrimeiro').textContent=contatos.filter(e=>Number(e.etapa)===1).length;
+  document.getElementById('indSegundo').textContent=contatos.filter(e=>Number(e.etapa)===2).length;
+  document.getElementById('indTerceiro').textContent=contatos.filter(e=>Number(e.etapa)===3).length;
+  document.getElementById('indPensando').textContent=eventosMes.filter(e=>e.evento==='Pensando').length;
+  document.getElementById('indResultadoAceitou').textContent=eventosMes.filter(e=>e.evento==='Aceitou').length;
+  document.getElementById('indRecusou').textContent=eventosMes.filter(e=>e.evento==='Recusou').length;
+  document.getElementById('indResultadoNaoAtendeu').textContent=naoAtendeu;
+
+  const [ano,mesN]=mes.split('-').map(Number),dias=new Date(ano,mesN,0).getDate(),diario={};
+  for(let d=1;d<=dias;d++){const k=`${ano}-${String(mesN).padStart(2,'0')}-${String(d).padStart(2,'0')}`;diario[k]={contatos:0,respostas:0,aceites:0,nao:0}}
+  eventosMes.forEach(e=>{const k=dataLocalISO(e.ocorrido_em);if(!diario[k])return;if(e.evento==='Contato')diario[k].contatos++;if(respostasValidas.has(e.evento))diario[k].respostas++;if(e.evento==='Aceitou')diario[k].aceites++;if(e.evento==='Não atendeu')diario[k].nao++});
+  const ativos=Object.entries(diario).filter(([,v])=>v.contatos||v.respostas||v.aceites||v.nao),max=Math.max(1,...ativos.map(([,v])=>Math.max(v.contatos,v.respostas)));
+  document.getElementById('graficoIndicadores').innerHTML=ativos.length?ativos.map(([dia,v])=>{
+    const rotulo=new Date(dia+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}),wc=Math.max(v.contatos?4:0,v.contatos/max*100),wr=Math.max(v.respostas?4:0,v.respostas/max*100);
+    return `<div class="grid grid-cols-[52px_1fr_38px] items-center gap-2 text-xs"><span class="text-zinc-500">${rotulo}</span><div class="space-y-1"><div class="h-2 rounded-full bg-zinc-800 overflow-hidden"><div class="h-full bg-orange-500 rounded-full" style="width:${wc}%"></div></div><div class="h-2 rounded-full bg-zinc-800 overflow-hidden"><div class="h-full bg-green-500 rounded-full" style="width:${wr}%"></div></div></div><span class="text-right text-zinc-400">${v.contatos}/${v.respostas}</span></div>`
+  }).join(''):'<p class="text-sm text-zinc-500 py-8 text-center">Ainda não há atividade registrada neste mês.</p>';
+
+  document.getElementById('tabelaIndicadores').innerHTML=ativos.length?ativos.slice().reverse().map(([dia,v])=>`<tr class="border-t border-zinc-800"><td class="p-3">${new Date(dia+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'})}</td><td class="p-3 text-right">${v.contatos}</td><td class="p-3 text-right">${v.respostas}</td><td class="p-3 text-right text-green-400">${v.aceites}</td><td class="p-3 text-right">${v.nao}</td></tr>`).join(''):'<tr><td colspan="5" class="p-6 text-center text-zinc-500">Sem atividade no período.</td></tr>';
+}
+'''
+if 'function renderizarIndicadores()' not in s:
+    s = s.replace('function renderizarComissoes(){', indicadores_js + '\nfunction renderizarComissoes(){')
+
+p.write_text(s)
